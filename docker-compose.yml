@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    container_name: ai-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules   # Сохраняем node_modules в контейнере, чтобы они не перезаписывались
+    env_file:
+      - ./backend/.env      # Загружаем переменные окружения из .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: ai-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aidb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # Сохраняем данные БД в volume
+
+volumes:
+  pgdata:

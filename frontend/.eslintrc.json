@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
+  "plugins": ["@typescript-eslint", "prettier"],
+  "rules": {
+    "semi": ["error", "always"],
+    "quotes": ["error", "double"],
+    "prettier/prettier": ["error"]
+  }
+}
