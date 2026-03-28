@@ -1,6 +1,8 @@
 name: Dev → Main CI
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
@@ -37,7 +39,7 @@ jobs:
         working-directory: ./backend
         run: npm run build
 
-      # Можно добавить тесты, если они есть
+      # Если есть тесты, их можно включить
       # - name: Run tests
       #   working-directory: ./backend
       #   run: npm test
@@ -52,16 +54,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm ci --include=dev
 
       - name: Lint & Format
         working-directory: ./frontend
         run: |
-          npm run lint
+          npx eslint . --ext .ts
           npx prettier --write .
 
       - name: Build frontend
