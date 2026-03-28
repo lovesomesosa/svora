@@ -1,0 +1,68 @@
+name: Dev → Main CI
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-backend:
+    name: Backend Build & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Lint & Format
+        working-directory: ./backend
+        run: |
+          npm run lint
+          npm run format
+
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      # Можно добавить тесты, если они есть
+      # - name: Run tests
+      #   working-directory: ./backend
+      #   run: npm test
+
+  build-frontend:
+    name: Frontend Build & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Lint & Format
+        working-directory: ./frontend
+        run: |
+          npm run lint
+          npx prettier --write .
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
