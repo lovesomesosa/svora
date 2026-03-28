@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./backend
-        run: npm install --include=dev
+        run: npm ci --include=dev
 
       - name: Lint & Format
         working-directory: ./backend
