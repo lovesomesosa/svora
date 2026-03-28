@@ -29,8 +29,8 @@ jobs:
       - name: Lint & Format
         working-directory: ./backend
         run: |
-          npm run lint
-          npm run format
+          npx eslint . --ext .ts
+          npx prettier --write .
 
       - name: Build backend
         working-directory: ./backend
