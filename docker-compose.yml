@@ -1,31 +1,30 @@
-version: '3.9'
-
 services:
   backend:
     build: ./backend
-    container_name: ai-backend
+    container_name: svora-backend
     ports:
       - "5000:5000"
     volumes:
       - ./backend:/app
-      - /app/node_modules   # Сохраняем node_modules в контейнере, чтобы они не перезаписывались
+      - /app/node_modules
     env_file:
-      - ./backend/.env      # Загружаем переменные окружения из .env
+      - ./backend/.env
     depends_on:
       - db
+    restart: unless-stopped
 
   db:
     image: postgres:16
-    container_name: ai-postgres
+    container_name: svora-postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: aidb
+      POSTGRES_DB: svoradb
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data   # Сохраняем данные БД в volume
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:
