@@ -2,9 +2,10 @@
   "compilerOptions": {
     // Target & Module
     "target": "ES2020", // Современный JS
-    "module": "commonjs", // Для Node.js
-    "rootDir": "./src", // Исходники в src/
-    "outDir": "./dist", // Скомпилированные файлы в dist/
+    "module": "NodeNext", // Для Node.js
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",
+    "rootDir": "./",
 
     // Типы
     "strict": true, // Включаем все строгие проверки
@@ -18,6 +19,6 @@
     "declaration": true, // Генерация .d.ts
     "declarationMap": true // Карта для .d.ts
   },
-  "include": ["src"],
+  "include": ["src/**/*", "prisma.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
