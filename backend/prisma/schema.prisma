@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ====================== МОДЕЛИ ======================
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  role          Role     @default(CLIENT)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  bookings         Booking[]
+  assignedBookings Booking[] @relation("AssignedBookings")
+  projects         Project[]
+  comments         Comment[]
+
+  @@map("users")
+}
+
+model Booking {
+  id          String      @id @default(cuid())
+  userId      String
+  assignedTo  String?
+  date        DateTime
+  startTime   String
+  endTime     String
+  serviceType ServiceType
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user        User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assigned    User?   @relation("AssignedBookings", fields: [assignedTo], references: [id])
+
+  @@map("bookings")
+}
+
+model Project {
+  id        String     @id @default(cuid())
+  userId    String
+  title     String
+  type      ProjectType
+  status    ProjectStatus @default(RECORDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tracks    Track[]
+
+  @@map("projects")
+}
+
+model Track {
+  id        String   @id @default(cuid())
+  projectId String
+  title     String
+  order     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  versions  TrackVersion[]
+  comments  Comment[]
+
+  @@map("tracks")
+}
+
+model TrackVersion {
+  id          String   @id @default(cuid())
+  trackId     String
+  versionName String
+  fileUrl     String
+  createdAt   DateTime @default(now())
+
+  track       Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@map("track_versions")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  trackId   String
+  userId    String
+  text      String
+  timestamp String?
+  createdAt DateTime @default(now())
+
+  track     Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+// ====================== ENUMS ======================
+
+enum Role {
+  CLIENT
+  OWNER
+}
+
+enum ServiceType {
+  RECORDING
+  MIXING
+  MASTERING
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum ProjectType {
+  SINGLE
+  ALBUM
+}
+
+enum ProjectStatus {
+  RECORDING
+  MIXING
+  MASTERING
+  DONE
+}
