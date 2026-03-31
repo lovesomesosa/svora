@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import router from "./routes";
+import router from "./routes/index.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -8,7 +8,7 @@ app.use(express.json());
 app.use("/api", router);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from AI Decision Helper backend!");
+  res.send("svora-manager backend started successfully!");
 });
 
 app.listen(PORT, () => {

@@ -224,9 +224,9 @@ export type TrackWhereInput = {
   order?: Prisma.IntNullableFilter<"Track"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Track"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Track"> | Date | string
-  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
-  versions?: Prisma.TrackVersionListRelationFilter
   comments?: Prisma.CommentListRelationFilter
+  versions?: Prisma.TrackVersionListRelationFilter
+  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }
 
 export type TrackOrderByWithRelationInput = {
@@ -236,9 +236,9 @@ export type TrackOrderByWithRelationInput = {
   order?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  project?: Prisma.ProjectOrderByWithRelationInput
-  versions?: Prisma.TrackVersionOrderByRelationAggregateInput
   comments?: Prisma.CommentOrderByRelationAggregateInput
+  versions?: Prisma.TrackVersionOrderByRelationAggregateInput
+  project?: Prisma.ProjectOrderByWithRelationInput
 }
 
 export type TrackWhereUniqueInput = Prisma.AtLeast<{
@@ -251,9 +251,9 @@ export type TrackWhereUniqueInput = Prisma.AtLeast<{
   order?: Prisma.IntNullableFilter<"Track"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Track"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Track"> | Date | string
-  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
-  versions?: Prisma.TrackVersionListRelationFilter
   comments?: Prisma.CommentListRelationFilter
+  versions?: Prisma.TrackVersionListRelationFilter
+  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }, "id">
 
 export type TrackOrderByWithAggregationInput = {
@@ -288,9 +288,9 @@ export type TrackCreateInput = {
   order?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  project: Prisma.ProjectCreateNestedOneWithoutTracksInput
-  versions?: Prisma.TrackVersionCreateNestedManyWithoutTrackInput
   comments?: Prisma.CommentCreateNestedManyWithoutTrackInput
+  versions?: Prisma.TrackVersionCreateNestedManyWithoutTrackInput
+  project: Prisma.ProjectCreateNestedOneWithoutTracksInput
 }
 
 export type TrackUncheckedCreateInput = {
@@ -300,8 +300,8 @@ export type TrackUncheckedCreateInput = {
   order?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  versions?: Prisma.TrackVersionUncheckedCreateNestedManyWithoutTrackInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTrackInput
+  versions?: Prisma.TrackVersionUncheckedCreateNestedManyWithoutTrackInput
 }
 
 export type TrackUpdateInput = {
@@ -310,9 +310,9 @@ export type TrackUpdateInput = {
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  project?: Prisma.ProjectUpdateOneRequiredWithoutTracksNestedInput
-  versions?: Prisma.TrackVersionUpdateManyWithoutTrackNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTrackNestedInput
+  versions?: Prisma.TrackVersionUpdateManyWithoutTrackNestedInput
+  project?: Prisma.ProjectUpdateOneRequiredWithoutTracksNestedInput
 }
 
 export type TrackUncheckedUpdateInput = {
@@ -322,8 +322,8 @@ export type TrackUncheckedUpdateInput = {
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  versions?: Prisma.TrackVersionUncheckedUpdateManyWithoutTrackNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTrackNestedInput
+  versions?: Prisma.TrackVersionUncheckedUpdateManyWithoutTrackNestedInput
 }
 
 export type TrackCreateManyInput = {
@@ -486,8 +486,8 @@ export type TrackCreateWithoutProjectInput = {
   order?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  versions?: Prisma.TrackVersionCreateNestedManyWithoutTrackInput
   comments?: Prisma.CommentCreateNestedManyWithoutTrackInput
+  versions?: Prisma.TrackVersionCreateNestedManyWithoutTrackInput
 }
 
 export type TrackUncheckedCreateWithoutProjectInput = {
@@ -496,8 +496,8 @@ export type TrackUncheckedCreateWithoutProjectInput = {
   order?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  versions?: Prisma.TrackVersionUncheckedCreateNestedManyWithoutTrackInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTrackInput
+  versions?: Prisma.TrackVersionUncheckedCreateNestedManyWithoutTrackInput
 }
 
 export type TrackCreateOrConnectWithoutProjectInput = {
@@ -544,8 +544,8 @@ export type TrackCreateWithoutVersionsInput = {
   order?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  project: Prisma.ProjectCreateNestedOneWithoutTracksInput
   comments?: Prisma.CommentCreateNestedManyWithoutTrackInput
+  project: Prisma.ProjectCreateNestedOneWithoutTracksInput
 }
 
 export type TrackUncheckedCreateWithoutVersionsInput = {
@@ -580,8 +580,8 @@ export type TrackUpdateWithoutVersionsInput = {
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  project?: Prisma.ProjectUpdateOneRequiredWithoutTracksNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTrackNestedInput
+  project?: Prisma.ProjectUpdateOneRequiredWithoutTracksNestedInput
 }
 
 export type TrackUncheckedUpdateWithoutVersionsInput = {
@@ -600,8 +600,8 @@ export type TrackCreateWithoutCommentsInput = {
   order?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  project: Prisma.ProjectCreateNestedOneWithoutTracksInput
   versions?: Prisma.TrackVersionCreateNestedManyWithoutTrackInput
+  project: Prisma.ProjectCreateNestedOneWithoutTracksInput
 }
 
 export type TrackUncheckedCreateWithoutCommentsInput = {
@@ -636,8 +636,8 @@ export type TrackUpdateWithoutCommentsInput = {
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  project?: Prisma.ProjectUpdateOneRequiredWithoutTracksNestedInput
   versions?: Prisma.TrackVersionUpdateManyWithoutTrackNestedInput
+  project?: Prisma.ProjectUpdateOneRequiredWithoutTracksNestedInput
 }
 
 export type TrackUncheckedUpdateWithoutCommentsInput = {
@@ -664,8 +664,8 @@ export type TrackUpdateWithoutProjectInput = {
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  versions?: Prisma.TrackVersionUpdateManyWithoutTrackNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTrackNestedInput
+  versions?: Prisma.TrackVersionUpdateManyWithoutTrackNestedInput
 }
 
 export type TrackUncheckedUpdateWithoutProjectInput = {
@@ -674,8 +674,8 @@ export type TrackUncheckedUpdateWithoutProjectInput = {
   order?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  versions?: Prisma.TrackVersionUncheckedUpdateManyWithoutTrackNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTrackNestedInput
+  versions?: Prisma.TrackVersionUncheckedUpdateManyWithoutTrackNestedInput
 }
 
 export type TrackUncheckedUpdateManyWithoutProjectInput = {
@@ -692,13 +692,13 @@ export type TrackUncheckedUpdateManyWithoutProjectInput = {
  */
 
 export type TrackCountOutputType = {
-  versions: number
   comments: number
+  versions: number
 }
 
 export type TrackCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  versions?: boolean | TrackCountOutputTypeCountVersionsArgs
   comments?: boolean | TrackCountOutputTypeCountCommentsArgs
+  versions?: boolean | TrackCountOutputTypeCountVersionsArgs
 }
 
 /**
@@ -714,15 +714,15 @@ export type TrackCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
 /**
  * TrackCountOutputType without action
  */
-export type TrackCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TrackVersionWhereInput
+export type TrackCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommentWhereInput
 }
 
 /**
  * TrackCountOutputType without action
  */
-export type TrackCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CommentWhereInput
+export type TrackCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TrackVersionWhereInput
 }
 
 
@@ -733,9 +733,9 @@ export type TrackSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   order?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
-  versions?: boolean | Prisma.Track$versionsArgs<ExtArgs>
   comments?: boolean | Prisma.Track$commentsArgs<ExtArgs>
+  versions?: boolean | Prisma.Track$versionsArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.TrackCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["track"]>
 
@@ -770,9 +770,9 @@ export type TrackSelectScalar = {
 
 export type TrackOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "title" | "order" | "createdAt" | "updatedAt", ExtArgs["result"]["track"]>
 export type TrackInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
-  versions?: boolean | Prisma.Track$versionsArgs<ExtArgs>
   comments?: boolean | Prisma.Track$commentsArgs<ExtArgs>
+  versions?: boolean | Prisma.Track$versionsArgs<ExtArgs>
+  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.TrackCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TrackIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -785,9 +785,9 @@ export type TrackIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type $TrackPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Track"
   objects: {
-    project: Prisma.$ProjectPayload<ExtArgs>
-    versions: Prisma.$TrackVersionPayload<ExtArgs>[]
     comments: Prisma.$CommentPayload<ExtArgs>[]
+    versions: Prisma.$TrackVersionPayload<ExtArgs>[]
+    project: Prisma.$ProjectPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1190,9 +1190,9 @@ readonly fields: TrackFieldRefs;
  */
 export interface Prisma__TrackClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  versions<T extends Prisma.Track$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Track$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TrackVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   comments<T extends Prisma.Track$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Track$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  versions<T extends Prisma.Track$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Track$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TrackVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1629,30 +1629,6 @@ export type TrackDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * Track.versions
- */
-export type Track$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the TrackVersion
-   */
-  select?: Prisma.TrackVersionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the TrackVersion
-   */
-  omit?: Prisma.TrackVersionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TrackVersionInclude<ExtArgs> | null
-  where?: Prisma.TrackVersionWhereInput
-  orderBy?: Prisma.TrackVersionOrderByWithRelationInput | Prisma.TrackVersionOrderByWithRelationInput[]
-  cursor?: Prisma.TrackVersionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.TrackVersionScalarFieldEnum | Prisma.TrackVersionScalarFieldEnum[]
-}
-
-/**
  * Track.comments
  */
 export type Track$commentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1674,6 +1650,30 @@ export type Track$commentsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.CommentScalarFieldEnum | Prisma.CommentScalarFieldEnum[]
+}
+
+/**
+ * Track.versions
+ */
+export type Track$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TrackVersion
+   */
+  select?: Prisma.TrackVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TrackVersion
+   */
+  omit?: Prisma.TrackVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TrackVersionInclude<ExtArgs> | null
+  where?: Prisma.TrackVersionWhereInput
+  orderBy?: Prisma.TrackVersionOrderByWithRelationInput | Prisma.TrackVersionOrderByWithRelationInput[]
+  cursor?: Prisma.TrackVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TrackVersionScalarFieldEnum | Prisma.TrackVersionScalarFieldEnum[]
 }
 
 /**
