@@ -1,6 +1,11 @@
 import { Response } from "express";
 import * as bookingService from "./booking.service.js";
+import {
+  createBookingSchema,
+  updateBookingStatusSchema,
+} from "./booking.schema.js";
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
+import { failure, success } from "../../utils/api-response.js";
 
 type BookingIdParams = {
   id: string;
@@ -8,53 +13,69 @@ type BookingIdParams = {
 
 export const createBooking = async (req: AuthRequest, res: Response) => {
   try {
+    const parsed = createBookingSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return failure(res, "Validation failed", 400, parsed.error.flatten());
+    }
+
     const booking = await bookingService.createBooking(
       req.user!.userId,
-      req.body
+      parsed.data,
     );
 
-    res.status(201).json(booking);
+    return success(res, booking, "Booking created", 201);
   } catch (error) {
-    res.status(400).json({
-      message: error instanceof Error ? error.message : "Booking failed",
-    });
+    return failure(
+      res,
+      error instanceof Error ? error.message : "Booking failed",
+      400,
+    );
   }
 };
 
 export const getMyBookings = async (req: AuthRequest, res: Response) => {
   try {
-    const bookings = await bookingService.getMyBookings(
-      req.user!.userId
-    );
-
-    res.json(bookings);
+    const bookings = await bookingService.getMyBookings(req.user!.userId);
+    return success(res, bookings, "My bookings fetched");
   } catch {
-    res.status(500).json({ message: "Failed to fetch bookings" });
+    return failure(res, "Failed to fetch bookings", 500);
   }
 };
 
 export const getAllBookings = async (_req: AuthRequest, res: Response) => {
   try {
     const bookings = await bookingService.getAllBookings();
-    res.json(bookings);
+    return success(res, bookings, "All bookings fetched");
   } catch {
-    res.status(500).json({ message: "Failed to fetch all bookings" });
+    return failure(res, "Failed to fetch all bookings", 500);
   }
 };
 
-export const updateBookingStatus = async (req: AuthRequest<BookingIdParams>, res: Response) => {
+export const updateBookingStatus = async (
+  req: AuthRequest<BookingIdParams>,
+  res: Response,
+) => {
   try {
+    const parsed = updateBookingStatusSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return failure(res, "Validation failed", 400, parsed.error.flatten());
+    }
+
     const booking = await bookingService.updateBookingStatus(
       req.params.id,
       req.user!.userId,
-      req.body,
+      parsed.data,
     );
 
-    res.json(booking);
+    return success(res, booking, "Booking status updated");
   } catch (error) {
-    res.status(400).json({
-      message: error instanceof Error ? error.message : "Failed to update booking",
-    });
+    return failure(
+      res,
+      error instanceof Error ? error.message : "Failed to update booking",
+      400,
+    );
   }
 };
 
@@ -63,14 +84,16 @@ export const getAvailableSlots = async (req: AuthRequest, res: Response) => {
     const { date } = req.query;
 
     if (!date || typeof date !== "string") {
-      res.status(400).json({ message: "Date is required" });
-      return;
+      return failure(res, "Date is required", 400);
     }
 
     const result = await bookingService.getAvailableSlots(date);
-
-    res.json(result);
-  } catch {
-    res.status(500).json({ message: "Failed to fetch slots" });
+    return success(res, result, "Available slots fetched");
+  } catch (error) {
+    return failure(
+      res,
+      error instanceof Error ? error.message : "Failed to fetch slots",
+      400,
+    );
   }
 };

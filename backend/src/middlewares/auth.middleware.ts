@@ -10,13 +10,16 @@ export interface AuthRequest<P = Record<string, string>> extends Request<P> {
 
 export const authMiddleware = (
   req: AuthRequest,
-  res:  Response,
-  next: NextFunction
+  res: Response,
+  next: NextFunction,
 ) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ message: "Unauthorized" });
+    res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
     return;
   }
 
@@ -31,6 +34,9 @@ export const authMiddleware = (
     req.user = decoded;
     next();
   } catch {
-    res.status(401).json({ message: "Invalid token" });
+    res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
   }
 };

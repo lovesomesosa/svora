@@ -1,10 +1,10 @@
-export type CreateBookingInput = {
-  date: string;
-  startTime: string;
-  endTime: string;
-  serviceType: "RECORDING" | "MIXING" | "MASTERING";
-};
+import { z } from "zod";
+import {
+  createBookingSchema,
+  updateBookingStatusSchema,
+} from "./booking.schema.js";
 
-export type UpdateBookingStatusInput = {
-  status: "CONFIRMED" | "CANCELLED";
-};
+export type CreateBookingInput = z.infer<typeof createBookingSchema>;
+export type UpdateBookingStatusInput = z.infer<
+  typeof updateBookingStatusSchema
+>;
