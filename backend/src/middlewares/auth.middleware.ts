@@ -10,7 +10,7 @@ export interface AuthRequest<P = Record<string, string>> extends Request<P> {
 
 export const authMiddleware = (
   req: AuthRequest,
-  res: Response,
+  res:  Response,
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;

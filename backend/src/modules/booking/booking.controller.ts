@@ -57,3 +57,20 @@ export const updateBookingStatus = async (req: AuthRequest<BookingIdParams>, res
     });
   }
 };
+
+export const getAvailableSlots = async (req: AuthRequest, res: Response) => {
+  try {
+    const { date } = req.query;
+
+    if (!date || typeof date !== "string") {
+      res.status(400).json({ message: "Date is required" });
+      return;
+    }
+
+    const result = await bookingService.getAvailableSlots(date);
+
+    res.json(result);
+  } catch {
+    res.status(500).json({ message: "Failed to fetch slots" });
+  }
+};

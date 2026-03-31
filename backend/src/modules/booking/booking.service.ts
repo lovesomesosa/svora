@@ -116,3 +116,43 @@ export const updateBookingStatus = async (
     },
   });
 };
+
+// for clients to see available time slots
+export const getAvailableSlots = async (date: string) => {
+  const bookingDate = new Date(date);
+
+  const bookings = await prisma.booking.findMany({
+    where: { date: bookingDate },
+  });
+
+  const slots = [
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+    "18:00",
+  ];
+
+  const busySlots = bookings.flatMap((b) => {
+    const start = parseInt(b.startTime.split(":")[0]);
+    const end = parseInt(b.endTime.split(":")[0]);
+
+    const range = [];
+    for (let i = start; i < end; i++) {
+      range.push(`${i.toString().padStart(2, "0")}:00`);
+    }
+
+    return range;
+  });
+
+  const availableSlots = slots.filter((slot) => !busySlots.includes(slot));
+
+  return {
+    date,
+    availableSlots,
+  };
+};
