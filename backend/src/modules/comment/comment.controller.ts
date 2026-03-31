@@ -11,9 +11,7 @@ type TrackIdParams = {
 };
 
 export const createComment = asyncHandler(
-  async (
-  req: AuthRequest<TrackIdParams>,
-  res: Response) => {
+  async (req: AuthRequest<TrackIdParams>, res: Response) => {
     const parsed = createCommentSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -27,21 +25,18 @@ export const createComment = asyncHandler(
     );
 
     return success(res, comment, "Comment created", 201);
-  }
+  },
 );
 
 export const getComments = asyncHandler(
- async (
-  req: AuthRequest<TrackIdParams>,
-  res: Response,
-) => {
+  async (req: AuthRequest<TrackIdParams>, res: Response) => {
     const comments = await commentService.getCommentsByTrack(
       req.params.id,
       req.user!.userId,
     );
 
     return success(res, comments, "Comments fetched");
-  }
+  },
 );
 
 /*export const deleteComment = asyncHandler(

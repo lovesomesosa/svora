@@ -2,7 +2,15 @@ import { prisma } from "../../lib/prisma.js";
 import { CreateTrackVersionInput } from "./version.types.js";
 import { AppError } from "../../utils/app-error.js";
 
-const serializeVersion = (version: any) => ({
+type SerializableVersion = {
+  id: string;
+  trackId: string;
+  versionName: string;
+  fileUrl: string;
+  createdAt: Date;
+};
+
+const serializeVersion = (version: SerializableVersion) => ({
   id: version.id,
   trackId: version.trackId,
   versionName: version.versionName,
@@ -32,11 +40,15 @@ export const createTrackVersion = async (
   }
 
   const duplicateVersionName = track.versions.some(
-    (version) => version.versionName.toLowerCase() === data.versionName.toLowerCase(),
+    (version) =>
+      version.versionName.toLowerCase() === data.versionName.toLowerCase(),
   );
 
   if (duplicateVersionName) {
-    throw new AppError("Version with this name already exists for this track", 409);
+    throw new AppError(
+      "Version with this name already exists for this track",
+      409,
+    );
   }
 
   const version = await prisma.trackVersion.create({

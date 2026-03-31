@@ -5,6 +5,31 @@ import {
   UpdateBookingStatusInput,
 } from "./booking.types.js";
 
+type SerializebleBooking = {
+  id: string;
+  userId: string;
+  assignedTo?: string | null;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  serviceType: string;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED";
+  createdAt: Date;
+  updatedAt: Date;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  assigned?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+};
+
 const normalizeDateOnly = (input: string) => {
   const date = new Date(input);
 
@@ -23,7 +48,7 @@ const toDateTime = (baseDate: Date, hhmm: string) => {
   return value;
 };
 
-const serializeBooking = (booking: any) => ({
+const serializeBooking = (booking: SerializebleBooking) => ({
   id: booking.id,
   userId: booking.userId,
   assignedTo: booking.assignedTo,
@@ -34,6 +59,7 @@ const serializeBooking = (booking: any) => ({
   status: booking.status,
   createdAt: booking.createdAt,
   updatedAt: booking.updatedAt,
+
   ...(booking.user && { user: booking.user }),
   ...(booking.assigned && { assigned: booking.assigned }),
 });
@@ -59,10 +85,7 @@ export const createBooking = async (
       status: {
         in: ["PENDING", "CONFIRMED"],
       },
-      AND: [
-        { startTime: { lt: endTime } },
-        { endTime: { gt: startTime } },
-      ],
+      AND: [{ startTime: { lt: endTime } }, { endTime: { gt: startTime } }],
     },
   });
 

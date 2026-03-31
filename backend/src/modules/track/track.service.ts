@@ -2,7 +2,22 @@ import { prisma } from "../../lib/prisma.js";
 import { CreateTrackInput } from "./track.types.js";
 import { AppError } from "../../utils/app-error.js";
 
-const serializeTrack = (track: any) => ({
+type SerializableTrack = {
+  id: string;
+  projectId: string;
+  title: string;
+  order: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Временно используем unknown[],
+  // так как структура вложенных данных (versions, comments) ещё не типизирована.
+  // В дальнейшем заменить на конкретные DTO-типы.
+  versions?: unknown[];
+  comments?: unknown[];
+};
+
+const serializeTrack = (track: SerializableTrack) => ({
   id: track.id,
   projectId: track.projectId,
   title: track.title,
@@ -41,7 +56,9 @@ export const createTrack = async (
       throw new AppError("Order is required for album tracks", 400);
     }
 
-    const orderExists = project.tracks.some((track) => track.order === data.order);
+    const orderExists = project.tracks.some(
+      (track) => track.order === data.order,
+    );
 
     if (orderExists) {
       throw new AppError("Track with this order already exists", 409);

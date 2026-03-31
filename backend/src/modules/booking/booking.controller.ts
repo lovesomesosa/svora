@@ -27,27 +27,25 @@ export const createBooking = asyncHandler(
     );
 
     return success(res, booking, "Booking created", 201);
-  }
+  },
 );
 
 export const getMyBookings = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const bookings = await bookingService.getMyBookings(req.user!.userId);
     return success(res, bookings, "My bookings fetched");
-  }
+  },
 );
 
 export const getAllBookings = asyncHandler(
   async (_req: AuthRequest, res: Response) => {
-  
     const bookings = await bookingService.getAllBookings();
     return success(res, bookings, "All bookings fetched");
-  } 
+  },
 );
 
 export const updateBookingStatus = asyncHandler(
-  async (req: AuthRequest<BookingIdParams>,
-  res: Response) => {
+  async (req: AuthRequest<BookingIdParams>, res: Response) => {
     const parsed = updateBookingStatusSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -61,7 +59,7 @@ export const updateBookingStatus = asyncHandler(
     );
 
     return success(res, booking, "Booking status updated");
-  }
+  },
 );
 
 export const getAvailableSlots = asyncHandler(
@@ -74,5 +72,5 @@ export const getAvailableSlots = asyncHandler(
 
     const result = await bookingService.getAvailableSlots(date);
     return success(res, result, "Available slots fetched");
-  }
+  },
 );

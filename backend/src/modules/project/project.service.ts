@@ -2,7 +2,38 @@ import { prisma } from "../../lib/prisma.js";
 import { CreateProjectInput } from "./project.types.js";
 import { AppError } from "../../utils/app-error.js";
 
-const serializeProject = (project: any) => ({
+type SerializableTrack = {
+  id: string;
+  title: string;
+  order: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Временно используем unknown[],
+  // так как структура вложенных данных (versions, comments) ещё не типизирована.
+  // В дальнейшем заменить на конкретные DTO-типы.
+  versions?: unknown[];
+  comments?: unknown[];
+};
+
+type SerializableProject = {
+  id: string;
+  userId: string;
+  title: string;
+  type: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  tracks?: SerializableTrack[];
+};
+
+const serializeProject = (project: SerializableProject) => ({
   id: project.id,
   userId: project.userId,
   title: project.title,
@@ -10,6 +41,7 @@ const serializeProject = (project: any) => ({
   status: project.status,
   createdAt: project.createdAt,
   updatedAt: project.updatedAt,
+
   ...(project.user && { user: project.user }),
   ...(project.tracks && { tracks: project.tracks }),
 });

@@ -6,7 +6,6 @@ import projectRoutes from "../modules/project/project.routes.js";
 import trackRoutes from "../modules/track/track.routes.js";
 import commentRoutes from "../modules/comment/comment.routes.js";
 
-
 const router = Router();
 
 router.use("/auth", authRoutes);

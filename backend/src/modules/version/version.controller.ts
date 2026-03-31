@@ -11,10 +11,7 @@ type TrackIdParams = {
 };
 
 export const createTrackVersion = asyncHandler(
-  async (
-  req: AuthRequest<TrackIdParams>,
-  res: Response,
-) => {
+  async (req: AuthRequest<TrackIdParams>, res: Response) => {
     const parsed = createTrackVersionSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -28,5 +25,5 @@ export const createTrackVersion = asyncHandler(
     );
 
     return success(res, version, "Track version created", 201);
-  }
+  },
 );

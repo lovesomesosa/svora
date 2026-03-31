@@ -2,7 +2,22 @@ import { prisma } from "../../lib/prisma.js";
 import { CreateCommentInput } from "./comment.types.js";
 import { AppError } from "../../utils/app-error.js";
 
-const serializeComment = (comment: any) => ({
+type SerializableComment = {
+  id: string;
+  trackId: string;
+  userId: string;
+  text: string;
+  timestamp: string | null;
+  createdAt: Date;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+};
+
+const serializeComment = (comment: SerializableComment) => ({
   id: comment.id,
   trackId: comment.trackId,
   userId: comment.userId,

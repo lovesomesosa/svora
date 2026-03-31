@@ -10,11 +10,8 @@ type ProjectIdParams = {
   id: string;
 };
 
-export const createTrack = asyncHandler (
-  async (
-  req: AuthRequest<ProjectIdParams>,
-  res: Response,
-) => {
+export const createTrack = asyncHandler(
+  async (req: AuthRequest<ProjectIdParams>, res: Response) => {
     const parsed = createTrackSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -28,5 +25,5 @@ export const createTrack = asyncHandler (
     );
 
     return success(res, track, "Track created", 201);
-  }
+  },
 );

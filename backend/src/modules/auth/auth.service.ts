@@ -3,8 +3,27 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { AppError } from "../../utils/app-error.js";
 
-export const register = async ({ name, email, password }: any) => {
-  console.log("REGISTER INPUT:", { name, email, hasPassword: Boolean(password) });
+type RegisterInput = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+type LoginInput = {
+  email: string;
+  password: string;
+};
+
+export const RegisterInput = async ({
+  name,
+  email,
+  password,
+}: RegisterInput) => {
+  console.log("REGISTER INPUT:", {
+    name,
+    email,
+    hasPassword: Boolean(password),
+  });
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -40,7 +59,7 @@ export const register = async ({ name, email, password }: any) => {
   return user;
 };
 
-export const login = async ({ email, password }: any) => {
+export const login = async ({ email, password }: LoginInput) => {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) throw new AppError("Invalid credentials", 400);
@@ -52,7 +71,7 @@ export const login = async ({ email, password }: any) => {
   const token = jwt.sign(
     { userId: user.id, role: user.role },
     process.env.JWT_SECRET!,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
   return { token };

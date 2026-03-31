@@ -16,7 +16,6 @@ type ProjectIdParams = {
 
 export const createProject = asyncHandler<AuthRequest>(
   async (req: AuthRequest, res: Response) => {
-  
     const parsed = createProjectSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -29,13 +28,14 @@ export const createProject = asyncHandler<AuthRequest>(
     );
 
     return success(res, project, "Project created", 201);
-});
+  },
+);
 
 export const getMyProjects = asyncHandler<AuthRequest>(
   async (req: AuthRequest, res: Response) => {
     const projects = await projectService.getMyProjects(req.user!.userId);
     return success(res, projects, "Projects fetched");
-  } 
+  },
 );
 
 export const getProjectById = asyncHandler<AuthRequest<ProjectIdParams>>(
@@ -57,5 +57,5 @@ export const getProjectById = asyncHandler<AuthRequest<ProjectIdParams>>(
     );
 
     return success(res, project, "Project fetched");
-  }
+  },
 );
