@@ -1,45 +1,17 @@
 import { Request, Response } from "express";
 import * as authService from "./auth.service.js";
+import { asyncHandler } from "../../utils/async-handler.js";
+import { success } from "../../utils/api-response.js";
 
-export const register = async (req: Request, res: Response) => {
-  try {
-    const user = await authService.register(req.body);
-    res.status(201).json(user);
-  } catch (error: unknown) {
-    console.error("REGISTER ERROR:", error);
+// ??? так как функции register и login не используют данные из запроса, можно оставить тип Request без расширения. Если в будущем потребуется доступ к данным пользователя или другим параметрам, можно будет расширить тип Request аналогично тому, как это сделано в других контроллерах.
+export const register = asyncHandler<Request>(async (req, res: Response) => {
+  const user = await authService.register(req.body);
 
-    if (error instanceof Error) {
-      res.status(400).json({
-        message: error.message,
-        name: error.name,
-        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-      });
-      return;
-    }
+  return success(res, user, "User registered", 201);
+});
 
-    res.status(400).json({
-      message: "Registration failed",
-    });
-  }
-};
+export const login = asyncHandler<Request>(async (req, res: Response) => {
+  const result = await authService.login(req.body);
 
-export const login = async (req: Request, res: Response) => {
-  try {
-    const result = await authService.login(req.body);
-    res.json(result);
-  } catch (error: unknown) {
-    console.error("LOGIN ERROR:", error);
-
-    if (error instanceof Error) {
-      res.status(401).json({
-        message: error.message,
-        name: error.name,
-      });
-      return;
-    }
-
-    res.status(401).json({
-      message: "Login failed",
-    });
-  }
-};
+  return success(res, result, "Login successful");
+});

@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { CreateProjectInput } from "./project.types.js";
+import { AppError } from "../../utils/app-error.js";
 
 const serializeProject = (project: any) => ({
   id: project.id,
@@ -69,7 +70,7 @@ export const getProjectById = async (projectId: string, userId: string) => {
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new AppError("Project not found", 404);
   }
 
   return serializeProject(project);

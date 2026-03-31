@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { CreateTrackInput } from "./track.types.js";
+import { AppError } from "../../utils/app-error.js";
 
 const serializeTrack = (track: any) => ({
   id: track.id,
@@ -28,27 +29,27 @@ export const createTrack = async (
   });
 
   if (!project) {
-    throw new Error("Project not found");
+    throw new AppError("Project not found", 404);
   }
 
   if (project.type === "SINGLE" && project.tracks.length >= 1) {
-    throw new Error("Single project can contain only one track");
+    throw new AppError("Single project can contain only one track", 400);
   }
 
   if (project.type === "ALBUM") {
     if (!data.order) {
-      throw new Error("Order is required for album tracks");
+      throw new AppError("Order is required for album tracks", 400);
     }
 
     const orderExists = project.tracks.some((track) => track.order === data.order);
 
     if (orderExists) {
-      throw new Error("Track with this order already exists");
+      throw new AppError("Track with this order already exists", 409);
     }
   }
 
   if (project.type === "SINGLE" && data.order !== undefined) {
-    throw new Error("Order is not allowed for single project");
+    throw new AppError("Order is not allowed for single project", 400);
   }
 
   const track = await prisma.track.create({

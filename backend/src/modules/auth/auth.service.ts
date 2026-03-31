@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { AppError } from "../../utils/app-error.js";
 
 export const register = async ({ name, email, password }: any) => {
   console.log("REGISTER INPUT:", { name, email, hasPassword: Boolean(password) });
@@ -12,7 +13,7 @@ export const register = async ({ name, email, password }: any) => {
   console.log("EXISTING USER:", existingUser);
 
   if (existingUser) {
-    throw new Error("User with this email already exists");
+    throw new AppError("User with this email already exists", 409);
   }
 
   const hashed = await bcrypt.hash(password, 10);
@@ -42,11 +43,11 @@ export const register = async ({ name, email, password }: any) => {
 export const login = async ({ email, password }: any) => {
   const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) throw new Error("Invalid credentials");
+  if (!user) throw new AppError("Invalid credentials", 400);
 
   const isValid = await bcrypt.compare(password, user.passwordHash);
 
-  if (!isValid) throw new Error("Invalid credentials");
+  if (!isValid) throw new AppError("Invalid credentials", 400);
 
   const token = jwt.sign(
     { userId: user.id, role: user.role },

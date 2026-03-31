@@ -5,14 +5,16 @@ import {
   updateBookingStatusSchema,
 } from "./booking.schema.js";
 import { AuthRequest } from "../../middlewares/auth.middleware.js";
+
 import { failure, success } from "../../utils/api-response.js";
+import { asyncHandler } from "../../utils/async-handler.js"; // упрощаем try/catch блоки с помощью asyncHandler
 
 type BookingIdParams = {
   id: string;
 };
 
-export const createBooking = async (req: AuthRequest, res: Response) => {
-  try {
+export const createBooking = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
     const parsed = createBookingSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -25,38 +27,27 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
     );
 
     return success(res, booking, "Booking created", 201);
-  } catch (error) {
-    return failure(
-      res,
-      error instanceof Error ? error.message : "Booking failed",
-      400,
-    );
   }
-};
+);
 
-export const getMyBookings = async (req: AuthRequest, res: Response) => {
-  try {
+export const getMyBookings = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
     const bookings = await bookingService.getMyBookings(req.user!.userId);
     return success(res, bookings, "My bookings fetched");
-  } catch {
-    return failure(res, "Failed to fetch bookings", 500);
   }
-};
+);
 
-export const getAllBookings = async (_req: AuthRequest, res: Response) => {
-  try {
+export const getAllBookings = asyncHandler(
+  async (_req: AuthRequest, res: Response) => {
+  
     const bookings = await bookingService.getAllBookings();
     return success(res, bookings, "All bookings fetched");
-  } catch {
-    return failure(res, "Failed to fetch all bookings", 500);
-  }
-};
+  } 
+);
 
-export const updateBookingStatus = async (
-  req: AuthRequest<BookingIdParams>,
-  res: Response,
-) => {
-  try {
+export const updateBookingStatus = asyncHandler(
+  async (req: AuthRequest<BookingIdParams>,
+  res: Response) => {
     const parsed = updateBookingStatusSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -70,17 +61,11 @@ export const updateBookingStatus = async (
     );
 
     return success(res, booking, "Booking status updated");
-  } catch (error) {
-    return failure(
-      res,
-      error instanceof Error ? error.message : "Failed to update booking",
-      400,
-    );
   }
-};
+);
 
-export const getAvailableSlots = async (req: AuthRequest, res: Response) => {
-  try {
+export const getAvailableSlots = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
     const { date } = req.query;
 
     if (!date || typeof date !== "string") {
@@ -89,11 +74,5 @@ export const getAvailableSlots = async (req: AuthRequest, res: Response) => {
 
     const result = await bookingService.getAvailableSlots(date);
     return success(res, result, "Available slots fetched");
-  } catch (error) {
-    return failure(
-      res,
-      error instanceof Error ? error.message : "Failed to fetch slots",
-      400,
-    );
   }
-};
+);

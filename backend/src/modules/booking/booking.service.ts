@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../utils/app-error.js";
 import {
   CreateBookingInput,
   UpdateBookingStatusInput,
@@ -8,7 +9,7 @@ const normalizeDateOnly = (input: string) => {
   const date = new Date(input);
 
   if (Number.isNaN(date.getTime())) {
-    throw new Error("Invalid date");
+    throw new AppError("Invalid date", 400);
   }
 
   date.setHours(0, 0, 0, 0);
@@ -49,7 +50,7 @@ export const createBooking = async (
   const bookingStart = toDateTime(bookingDate, startTime);
 
   if (bookingStart <= now) {
-    throw new Error("Cannot create booking in the past");
+    throw new AppError("Cannot create booking in the past", 400);
   }
 
   const existing = await prisma.booking.findFirst({
@@ -66,7 +67,7 @@ export const createBooking = async (
   });
 
   if (existing) {
-    throw new Error("Time slot is already booked");
+    throw new AppError("Time slot is already booked", 409);
   }
 
   const booking = await prisma.booking.create({
@@ -127,7 +128,7 @@ export const updateBookingStatus = async (
   });
 
   if (!booking) {
-    throw new Error("Booking not found");
+    throw new AppError("Booking not found", 404);
   }
 
   const updateData =

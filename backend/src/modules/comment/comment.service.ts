@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { CreateCommentInput } from "./comment.types.js";
+import { AppError } from "../../utils/app-error.js";
 
 const serializeComment = (comment: any) => ({
   id: comment.id,
@@ -26,7 +27,7 @@ export const createComment = async (
   });
 
   if (!track) {
-    throw new Error("Track not found");
+    throw new AppError("Track not found", 404);
   }
 
   const comment = await prisma.comment.create({
@@ -62,7 +63,7 @@ export const getCommentsByTrack = async (trackId: string, userId: string) => {
   });
 
   if (!track) {
-    throw new Error("Track not found");
+    throw new AppError("Track not found", 404);
   }
 
   const comments = await prisma.comment.findMany({

@@ -4,15 +4,16 @@ import { failure, success } from "../../utils/api-response.js";
 import { createCommentSchema } from "./comment.schema.js";
 import * as commentService from "./comment.service.js";
 
+import { asyncHandler } from "../../utils/async-handler.js"; // упрощаем try/catch блоки с помощью asyncHandler
+
 type TrackIdParams = {
   id: string;
 };
 
-export const createComment = async (
+export const createComment = asyncHandler(
+  async (
   req: AuthRequest<TrackIdParams>,
-  res: Response,
-) => {
-  try {
+  res: Response) => {
     const parsed = createCommentSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -26,31 +27,29 @@ export const createComment = async (
     );
 
     return success(res, comment, "Comment created", 201);
-  } catch (error) {
-    return failure(
-      res,
-      error instanceof Error ? error.message : "Failed to create comment",
-      400,
-    );
   }
-};
+);
 
-export const getComments = async (
+export const getComments = asyncHandler(
+ async (
   req: AuthRequest<TrackIdParams>,
   res: Response,
 ) => {
-  try {
     const comments = await commentService.getCommentsByTrack(
       req.params.id,
       req.user!.userId,
     );
 
     return success(res, comments, "Comments fetched");
-  } catch (error) {
-    return failure(
-      res,
-      error instanceof Error ? error.message : "Failed to fetch comments",
-      400,
-    );
   }
-};
+);
+
+/*export const deleteComment = asyncHandler(
+  async (
+    req: AuthRequest<{ commentId: string }>,
+    res: Response,
+  ) => {
+    await commentService.deleteComment(
+      req.params.commentId,
+      req.user!.userId,
+    );*/
