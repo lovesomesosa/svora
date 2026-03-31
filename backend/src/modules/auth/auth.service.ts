@@ -14,11 +14,7 @@ type LoginInput = {
   password: string;
 };
 
-export const RegisterInput = async ({
-  name,
-  email,
-  password,
-}: RegisterInput) => {
+export const register = async ({ name, email, password }: RegisterInput) => {
   console.log("REGISTER INPUT:", {
     name,
     email,
