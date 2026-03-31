@@ -4,3 +4,7 @@ export type CreateBookingInput = {
   endTime: string;
   serviceType: "RECORDING" | "MIXING" | "MASTERING";
 };
+
+export type UpdateBookingStatusInput = {
+  status: "CONFIRMED" | "CANCELLED";
+};
