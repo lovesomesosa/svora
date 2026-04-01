@@ -30,14 +30,18 @@ export const createComment = asyncHandler(
 
 export const getComments = asyncHandler(
   async (req: AuthRequest<TrackIdParams>, res: Response) => {
+    const { page, limit } = req.query;
+
     const comments = await commentService.getCommentsByTrack(
       req.params.id,
       req.user!.userId,
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
     );
 
     return success(res, comments, "Comments fetched");
   },
-);
+);;
 
 /*export const deleteComment = asyncHandler(
   async (

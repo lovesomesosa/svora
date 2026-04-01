@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../utils/app-error.js";
+import { getPagination } from "../../utils/pagination.js";
 import {
   CreateBookingInput,
   UpdateBookingStatusInput,
@@ -106,39 +107,75 @@ export const createBooking = async (
   return serializeBooking(booking);
 };
 
-export const getMyBookings = async (userId: string) => {
-  const bookings = await prisma.booking.findMany({
-    where: { userId },
-    orderBy: [{ date: "asc" }, { startTime: "asc" }],
-  });
+export const getMyBookings = async (
+  userId: string,
+  page?: string,
+  limit?: string,
+) => {
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
 
-  return bookings.map(serializeBooking);
+  const [bookings, total] = await Promise.all([
+    prisma.booking.findMany({
+      where: { userId },
+      skip,
+      take,
+      orderBy: [{ date: "asc" }, { startTime: "asc" }],
+    }),
+    prisma.booking.count({
+      where: { userId },
+    }),
+  ]);
+
+  return {
+    items: bookings.map(serializeBooking),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
 };
 
-export const getAllBookings = async () => {
-  const bookings = await prisma.booking.findMany({
-    orderBy: [{ date: "asc" }, { startTime: "asc" }],
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
-      },
-      assigned: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
-      },
-    },
-  });
+export const getAllBookings = async (page?: string, limit?: string) => {
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
 
-  return bookings.map(serializeBooking);
+  const [bookings, total] = await Promise.all([
+    prisma.booking.findMany({
+      skip,
+      take,
+      orderBy: [{ date: "asc" }, { startTime: "asc" }],
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        assigned: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    }),
+    prisma.booking.count(),
+  ]);
+
+  return {
+    items: bookings.map(serializeBooking),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
 };
 
 export const updateBookingStatus = async (

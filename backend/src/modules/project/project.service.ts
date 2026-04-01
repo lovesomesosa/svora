@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { CreateProjectInput } from "./project.types.js";
 import { AppError } from "../../utils/app-error.js";
+import { getPagination } from "../../utils/pagination.js";
 
 type SerializableTrack = {
   id: string;
@@ -61,13 +62,34 @@ export const createProject = async (
   return serializeProject(project);
 };
 
-export const getMyProjects = async (userId: string) => {
-  const projects = await prisma.project.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-  });
+export const getMyProjects = async (
+  userId: string,
+  page?: string,
+  limit?: string,
+) => {
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
 
-  return projects.map(serializeProject);
+  const [projects, total] = await Promise.all([
+    prisma.project.findMany({
+      where: { userId },
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.project.count({
+      where: { userId },
+    }),
+  ]);
+
+  return {
+    items: projects.map(serializeProject),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
 };
 
 export const getProjectById = async (projectId: string, userId: string) => {

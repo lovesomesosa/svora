@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { CreateCommentInput } from "./comment.types.js";
 import { AppError } from "../../utils/app-error.js";
+import { getPagination } from "../../utils/pagination.js";
 
 type SerializableComment = {
   id: string;
@@ -67,7 +68,12 @@ export const createComment = async (
   return serializeComment(comment);
 };
 
-export const getCommentsByTrack = async (trackId: string, userId: string) => {
+export const getCommentsByTrack = async (
+  trackId: string,
+  userId: string,
+  page?: string,
+  limit?: string,
+) => {
   const track = await prisma.track.findFirst({
     where: {
       id: trackId,
@@ -81,20 +87,37 @@ export const getCommentsByTrack = async (trackId: string, userId: string) => {
     throw new AppError("Track not found", 404);
   }
 
-  const comments = await prisma.comment.findMany({
-    where: { trackId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
+
+  const [comments, total] = await Promise.all([
+    prisma.comment.findMany({
+      where: { trackId },
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.comment.count({
+      where: { trackId },
+    }),
+  ]);
 
-  return comments.map(serializeComment);
+  return {
+    items: comments.map(serializeComment),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
 };

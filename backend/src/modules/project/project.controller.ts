@@ -33,7 +33,14 @@ export const createProject = asyncHandler<AuthRequest>(
 
 export const getMyProjects = asyncHandler<AuthRequest>(
   async (req: AuthRequest, res: Response) => {
-    const projects = await projectService.getMyProjects(req.user!.userId);
+    const { page, limit } = req.query;
+
+    const projects = await projectService.getMyProjects(
+      req.user!.userId,
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
+    );
+
     return success(res, projects, "Projects fetched");
   },
 );

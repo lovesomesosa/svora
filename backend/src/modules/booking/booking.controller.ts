@@ -32,14 +32,27 @@ export const createBooking = asyncHandler(
 
 export const getMyBookings = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const bookings = await bookingService.getMyBookings(req.user!.userId);
+    const { page, limit } = req.query;
+
+    const bookings = await bookingService.getMyBookings(
+      req.user!.userId,
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
+    );
+
     return success(res, bookings, "My bookings fetched");
   },
 );
 
 export const getAllBookings = asyncHandler(
-  async (_req: AuthRequest, res: Response) => {
-    const bookings = await bookingService.getAllBookings();
+  async (req: AuthRequest, res: Response) => {
+    const { page, limit } = req.query;
+
+    const bookings = await bookingService.getAllBookings(
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
+    );
+
     return success(res, bookings, "All bookings fetched");
   },
 );
