@@ -66,3 +66,16 @@ export const getProjectById = asyncHandler<AuthRequest<ProjectIdParams>>(
     return success(res, project, "Project fetched");
   },
 );
+
+export const getAllProjects = asyncHandler<AuthRequest>(
+  async (req: AuthRequest, res: Response) => {
+    const { page, limit } = req.query;
+
+    const projects = await projectService.getAllProjects(
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
+    );
+
+    return success(res, projects, "All projects fetched");
+  },
+);

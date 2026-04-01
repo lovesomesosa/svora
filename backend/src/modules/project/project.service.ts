@@ -126,6 +126,38 @@ export const getProjectById = async (projectId: string, userId: string) => {
   if (!project) {
     throw new AppError("Project not found", 404);
   }
-
   return serializeProject(project);
+};
+
+export const getAllProjects = async (page?: string, limit?: string) => {
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
+
+  const [projects, total] = await Promise.all([
+    prisma.project.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    }),
+    prisma.project.count(),
+  ]);
+
+  return {
+    items: projects.map(serializeProject),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
 };
