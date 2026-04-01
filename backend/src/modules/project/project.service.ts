@@ -91,7 +91,7 @@ export const getMyProjects = async (
     },
   };
 };
-
+// сократить вывод
 export const getProjectById = async (projectId: string, userId: string) => {
   const project = await prisma.project.findFirst({
     where: {
@@ -160,4 +160,51 @@ export const getAllProjects = async (page?: string, limit?: string) => {
       pages: total === 0 ? 1 : Math.ceil(total / take),
     },
   };
+};
+
+export const getProjectTracks = async (projectId: string, userId: string) => {
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      userId,
+    },
+    include: {
+      tracks: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          versions: {
+            orderBy: { createdAt: "desc" },
+          },
+          comments: {
+            orderBy: { createdAt: "desc" },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    throw new AppError("Project not found", 404);
+  }
+
+  return project.tracks.map((track) => ({
+    id: track.id,
+    projectId: track.projectId,
+    title: track.title,
+    order: track.order,
+    createdAt: track.createdAt,
+    updatedAt: track.updatedAt,
+    versions: track.versions,
+    comments: track.comments,
+  }));
 };

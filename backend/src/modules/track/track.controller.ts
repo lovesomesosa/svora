@@ -27,3 +27,16 @@ export const createTrack = asyncHandler(
     return success(res, track, "Track created", 201);
   },
 );
+
+export const getAllTracks = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { page, limit } = req.query;
+
+    const tracks = await trackService.getAllTracks(
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
+    );
+
+    return success(res, tracks, "All tracks fetched");
+  },
+);

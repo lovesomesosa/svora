@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { CreateTrackInput } from "./track.types.js";
 import { AppError } from "../../utils/app-error.js";
+import { getPagination } from "../../utils/pagination.js";
 
 type SerializableTrack = {
   id: string;
@@ -79,3 +80,48 @@ export const createTrack = async (
 
   return serializeTrack(track);
 };
+
+export const getAllTracks = async (page?: string, limit?: string) => {
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
+
+  const [tracks, total] = await Promise.all([
+    prisma.track.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      include: {
+        project: {
+          select: {
+            id: true,
+            title: true,
+            type: true,
+            status: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.track.count(),
+  ]);
+
+  return {
+    items: tracks.map((track) => ({
+      ...serializeTrack(track),
+      project: track.project,
+    })),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
+};
+

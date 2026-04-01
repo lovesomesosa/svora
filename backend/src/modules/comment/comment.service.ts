@@ -71,15 +71,20 @@ export const createComment = async (
 export const getCommentsByTrack = async (
   trackId: string,
   userId: string,
+  role: string, // добавить role  к версиям
   page?: string,
   limit?: string,
 ) => {
   const track = await prisma.track.findFirst({
     where: {
       id: trackId,
-      project: {
-        userId,
-      },
+      ...(role === "OWNER"
+        ? {}
+        : {
+            project: {
+              userId,
+            },
+          }),
     },
   });
 
@@ -113,6 +118,57 @@ export const getCommentsByTrack = async (
 
   return {
     items: comments.map(serializeComment),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
+};
+
+export const getAllComments = async (page?: string, limit?: string) => {
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
+
+  const [comments, total] = await Promise.all([
+    prisma.comment.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        track: {
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            project: {
+              select: {
+                id: true,
+                title: true,
+                type: true,
+                status: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.comment.count(),
+  ]);
+
+  return {
+    items: comments.map((comment) => ({
+      ...serializeComment(comment),
+      track: comment.track,
+    })),
     pagination: {
       page: currentPage,
       limit: take,

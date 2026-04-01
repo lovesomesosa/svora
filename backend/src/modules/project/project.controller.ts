@@ -8,7 +8,7 @@ import {
 } from "./project.schema.js";
 
 import { failure, success } from "../../utils/api-response.js";
-import { asyncHandler } from "../../utils/async-handler.js"; // упрощаем try/catch блоки с помощью asyncHandler
+import { asyncHandler } from "../../utils/async-handler.js";
 
 type ProjectIdParams = {
   id: string;
@@ -64,6 +64,28 @@ export const getProjectById = asyncHandler<AuthRequest<ProjectIdParams>>(
     );
 
     return success(res, project, "Project fetched");
+  },
+);
+
+export const getProjectTracks = asyncHandler<AuthRequest<ProjectIdParams>>(
+  async (req: AuthRequest<ProjectIdParams>, res: Response) => {
+    const parsedParams = projectIdParamsSchema.safeParse(req.params);
+    console.log("getProjectTracks called");
+    if (!parsedParams.success) {
+      return failure(
+        res,
+        "Validation failed",
+        400,
+        parsedParams.error.flatten(),
+      );
+    }
+
+    const tracks = await projectService.getProjectTracks(
+      parsedParams.data.id,
+      req.user!.userId,
+    );
+    console.log("getProjectTracks called");
+    return success(res, tracks, "Project tracks fetched");
   },
 );
 

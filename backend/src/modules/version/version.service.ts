@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { CreateTrackVersionInput } from "./version.types.js";
 import { AppError } from "../../utils/app-error.js";
+import { getPagination } from "../../utils/pagination.js";
 
 type SerializableVersion = {
   id: string;
@@ -60,4 +61,69 @@ export const createTrackVersion = async (
   });
 
   return serializeVersion(version);
+};
+
+export const getAllVersions = async (page?: string, limit?: string) => {
+  const { skip, limit: take, page: currentPage } = getPagination(page, limit);
+
+  const [versions, total] = await Promise.all([
+    prisma.trackVersion.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+      include: {
+        track: {
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            project: {
+              select: {
+                id: true,
+                title: true,
+                type: true,
+                status: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.trackVersion.count(),
+  ]);
+
+  return {
+    items: versions.map((version) => ({
+      ...serializeVersion(version),
+      track: version.track,
+    })),
+    pagination: {
+      page: currentPage,
+      limit: take,
+      total,
+      pages: total === 0 ? 1 : Math.ceil(total / take),
+    },
+  };
+};
+
+export const getTrackVersions = async (trackId: string, userId: string) => {
+  const track = await prisma.track.findFirst({
+    where: {
+      id: trackId,// добавить role  к версиям
+      project: {
+        userId,
+      },
+    },
+    include: {
+      versions: {
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
+
+  if (!track) {
+    throw new AppError("Track not found", 404);
+  }
+
+  return track.versions.map(serializeVersion);
 };

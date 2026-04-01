@@ -35,20 +35,24 @@ export const getComments = asyncHandler(
     const comments = await commentService.getCommentsByTrack(
       req.params.id,
       req.user!.userId,
+      req.user!.role,
       typeof page === "string" ? page : undefined,
       typeof limit === "string" ? limit : undefined,
     );
 
     return success(res, comments, "Comments fetched");
   },
-);;
+);
 
-/*export const deleteComment = asyncHandler(
-  async (
-    req: AuthRequest<{ commentId: string }>,
-    res: Response,
-  ) => {
-    await commentService.deleteComment(
-      req.params.commentId,
-      req.user!.userId,
-    );*/
+export const getAllComments = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { page, limit } = req.query;
+
+    const comments = await commentService.getAllComments(
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
+    );
+
+    return success(res, comments, "All comments fetched");
+  },
+);

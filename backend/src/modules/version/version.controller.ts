@@ -27,3 +27,27 @@ export const createTrackVersion = asyncHandler(
     return success(res, version, "Track version created", 201);
   },
 );
+
+export const getAllVersions = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { page, limit } = req.query;
+
+    const versions = await versionService.getAllVersions(
+      typeof page === "string" ? page : undefined,
+      typeof limit === "string" ? limit : undefined,
+    );
+
+    return success(res, versions, "All versions fetched");
+  },
+);
+
+export const getTrackVersions = asyncHandler(
+  async (req: AuthRequest<TrackIdParams>, res: Response) => {
+    const versions = await versionService.getTrackVersions(
+      req.params.id,
+      req.user!.userId,
+    );
+
+    return success(res, versions, "Track versions fetched");
+  },
+);
