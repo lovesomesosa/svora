@@ -27,7 +27,7 @@ export async function getClientBookings(token: string): Promise<Booking[]> {
 
 export async function createBooking(
   token: string,
-  payload: CreateBookingPayload,
+  payload: CreateBookingPayload
 ) {
   return apiRequest<CreateBookingResponse>("/api/bookings", {
     method: "POST",
@@ -39,14 +39,14 @@ export async function createBooking(
 export async function getAllBookings(
   token: string,
   page = 1,
-  limit = 10,
+  limit = 10
 ): Promise<Booking[]> {
   const response = await apiRequest<BookingsResponse>(
     `/api/bookings/all?page=${page}&limit=${limit}`,
     {
       method: "GET",
       token,
-    },
+    }
   );
 
   return normalizeBookingsResponse(response);
@@ -58,7 +58,7 @@ export async function getAvailableSlots(token: string, date: string) {
     {
       method: "GET",
       token,
-    },
+    }
   );
 
   return response.data.availableSlots;
@@ -67,7 +67,7 @@ export async function getAvailableSlots(token: string, date: string) {
 export async function updateBookingStatus(
   token: string,
   bookingId: string,
-  status: BookingStatus,
+  status: BookingStatus
 ) {
   return apiRequest(`/api/bookings/${bookingId}/status`, {
     method: "PATCH",

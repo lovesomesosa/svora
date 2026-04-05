@@ -59,7 +59,6 @@ export type CreateProjectResponse = {
   data: Project;
 };
 
-
 // BOOKING
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED";

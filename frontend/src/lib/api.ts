@@ -10,7 +10,7 @@ type ApiRequestOptions = {
 
 export async function apiRequest<T>(
   endpoint: string,
-  options: ApiRequestOptions = {},
+  options: ApiRequestOptions = {}
 ): Promise<T> {
   const { method = "GET", body, token } = options;
 

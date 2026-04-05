@@ -7,7 +7,7 @@ export async function getProjectById(token: string, projectId: string) {
     {
       method: "GET",
       token,
-    },
+    }
   );
 
   return response.data;

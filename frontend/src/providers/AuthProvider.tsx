@@ -22,11 +22,7 @@ async function fetchMeRequest(token: string) {
   });
 }
 
-export function AuthProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,18 +68,19 @@ export function AuthProvider({
     setUser(null);
   }
 
-  return (  
-  <AuthContext.Provider    
-  value={{      
-    user,      
-    token,      
-    loading,      
-    login,      
-    logout,    
-  }}  
-  >    
-  {children}  
-  </AuthContext.Provider>);
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

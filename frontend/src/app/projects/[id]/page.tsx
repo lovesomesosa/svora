@@ -23,8 +23,9 @@ export default function ProjectDetailsPage() {
   const { id } = useParams();
   const { token } = useAuth();
 
-  const [project, setProject] =
-    useState<ProjectDetailsResponse["data"] | null>(null);
+  const [project, setProject] = useState<ProjectDetailsResponse["data"] | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -45,17 +46,17 @@ export default function ProjectDetailsPage() {
   const [commentLoadingMap, setCommentLoadingMap] = useState<
     Record<string, boolean>
   >({});
-  const [versionErrorMap, setVersionErrorMap] = useState<Record<string, string>>(
-    {},
-  );
-  const [commentErrorMap, setCommentErrorMap] = useState<Record<string, string>>(
-    {},
-  );
+  const [versionErrorMap, setVersionErrorMap] = useState<
+    Record<string, string>
+  >({});
+  const [commentErrorMap, setCommentErrorMap] = useState<
+    Record<string, string>
+  >({});
   const [openVersionForms, setOpenVersionForms] = useState<
-  Record<string, boolean>
+    Record<string, boolean>
   >({});
   const [openCommentForms, setOpenCommentForms] = useState<
-  Record<string, boolean>
+    Record<string, boolean>
   >({});
 
   function toggleVersionForm(trackId: string) {
@@ -72,37 +73,37 @@ export default function ProjectDetailsPage() {
   }
 
   const loadProject = useCallback(async () => {
-  if (!token || !id) {
-    return;
-  }
+    if (!token || !id) {
+      return;
+    }
 
-  try {
-    setLoading(true);
-    setError("");
+    try {
+      setLoading(true);
+      setError("");
 
-    const data = await getProjectById(token, id as string);
-    setProject(data);
+      const data = await getProjectById(token, id as string);
+      setProject(data);
 
-    const initialVersionForms: Record<string, VersionFormState> = {};
-    const initialCommentForms: Record<string, CommentFormState> = {};
+      const initialVersionForms: Record<string, VersionFormState> = {};
+      const initialCommentForms: Record<string, CommentFormState> = {};
 
-    data.tracks.forEach((track) => {
-      initialVersionForms[track.id] = { versionName: "", fileUrl: "" };
-      initialCommentForms[track.id] = { text: "" };
-    });
+      data.tracks.forEach((track) => {
+        initialVersionForms[track.id] = { versionName: "", fileUrl: "" };
+        initialCommentForms[track.id] = { text: "" };
+      });
 
-    setVersionForms(initialVersionForms);
-    setCommentForms(initialCommentForms);
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "Failed to load project");
-  } finally {
-    setLoading(false);
-  }
-}, [token, id]);
+      setVersionForms(initialVersionForms);
+      setCommentForms(initialCommentForms);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load project");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, id]);
 
   useEffect(() => {
-  void loadProject();
-}, [loadProject]);
+    void loadProject();
+  }, [loadProject]);
 
   async function handleCreateTrack() {
     if (!trackTitle.trim() || !token || !id || !project) {
@@ -142,7 +143,9 @@ export default function ProjectDetailsPage() {
       setTrackOrder("");
       await loadProject();
     } catch (err) {
-      setTrackError(err instanceof Error ? err.message : "Failed to create track");
+      setTrackError(
+        err instanceof Error ? err.message : "Failed to create track"
+      );
     } finally {
       setTrackLoading(false);
     }
@@ -150,7 +153,7 @@ export default function ProjectDetailsPage() {
 
   function updateVersionForm(
     trackId: string,
-    patch: Partial<VersionFormState>,
+    patch: Partial<VersionFormState>
   ) {
     setVersionForms((prev) => ({
       ...prev,
@@ -163,7 +166,7 @@ export default function ProjectDetailsPage() {
 
   function updateCommentForm(
     trackId: string,
-    patch: Partial<CommentFormState>,
+    patch: Partial<CommentFormState>
   ) {
     setCommentForms((prev) => ({
       ...prev,
@@ -368,93 +371,109 @@ export default function ProjectDetailsPage() {
               </h2>
 
               <div className="mt-4 flex flex-wrap gap-3">
-  <button
-    onClick={() => toggleVersionForm(track.id)}
-    className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
-  >
-    {openVersionForms[track.id] ? "Hide version form" : "Add version"}
-  </button>
+                <button
+                  onClick={() => toggleVersionForm(track.id)}
+                  className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
+                >
+                  {openVersionForms[track.id]
+                    ? "Hide version form"
+                    : "Add version"}
+                </button>
 
-  <button
-    onClick={() => toggleCommentForm(track.id)}
-    className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
-  >
-    {openCommentForms[track.id] ? "Hide comment form" : "Add comment"}
-  </button>
-</div>
+                <button
+                  onClick={() => toggleCommentForm(track.id)}
+                  className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
+                >
+                  {openCommentForms[track.id]
+                    ? "Hide comment form"
+                    : "Add comment"}
+                </button>
+              </div>
 
-{openVersionForms[track.id] ? (
-  <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-    <p className="text-sm font-medium text-neutral-300">Add version</p>
+              {openVersionForms[track.id] ? (
+                <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+                  <p className="text-sm font-medium text-neutral-300">
+                    Add version
+                  </p>
 
-    <div className="mt-3 space-y-3">
-      <input
-        value={versionForms[track.id]?.versionName || ""}
-        onChange={(e) =>
-          updateVersionForm(track.id, {
-            versionName: e.target.value,
-          })
-        }
-        placeholder="Version name"
-        className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-      />
+                  <div className="mt-3 space-y-3">
+                    <input
+                      value={versionForms[track.id]?.versionName || ""}
+                      onChange={(e) =>
+                        updateVersionForm(track.id, {
+                          versionName: e.target.value,
+                        })
+                      }
+                      placeholder="Version name"
+                      className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
+                    />
 
-      <input
-        value={versionForms[track.id]?.fileUrl || ""}
-        onChange={(e) =>
-          updateVersionForm(track.id, {
-            fileUrl: e.target.value,
-          })
-        }
-        placeholder="File URL"
-        className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-      />
+                    <input
+                      value={versionForms[track.id]?.fileUrl || ""}
+                      onChange={(e) =>
+                        updateVersionForm(track.id, {
+                          fileUrl: e.target.value,
+                        })
+                      }
+                      placeholder="File URL"
+                      className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
+                    />
 
-      {versionErrorMap[track.id] ? (
-        <p className="text-sm text-red-400">{versionErrorMap[track.id]}</p>
-      ) : null}
+                    {versionErrorMap[track.id] ? (
+                      <p className="text-sm text-red-400">
+                        {versionErrorMap[track.id]}
+                      </p>
+                    ) : null}
 
-      <button
-        onClick={() => handleCreateVersion(track.id)}
-        disabled={versionLoadingMap[track.id]}
-        className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-      >
-        {versionLoadingMap[track.id] ? "Добавляем..." : "Save version"}
-      </button>
-    </div>
-  </div>
-) : null}
+                    <button
+                      onClick={() => handleCreateVersion(track.id)}
+                      disabled={versionLoadingMap[track.id]}
+                      className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+                    >
+                      {versionLoadingMap[track.id]
+                        ? "Добавляем..."
+                        : "Save version"}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
 
-{openCommentForms[track.id] ? (
-  <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-    <p className="text-sm font-medium text-neutral-300">Add comment</p>
+              {openCommentForms[track.id] ? (
+                <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+                  <p className="text-sm font-medium text-neutral-300">
+                    Add comment
+                  </p>
 
-    <div className="mt-3 space-y-3">
-      <textarea
-        value={commentForms[track.id]?.text || ""}
-        onChange={(e) =>
-          updateCommentForm(track.id, {
-            text: e.target.value,
-          })
-        }
-        placeholder="Comment text"
-        className="min-h-[110px] w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-      />
+                  <div className="mt-3 space-y-3">
+                    <textarea
+                      value={commentForms[track.id]?.text || ""}
+                      onChange={(e) =>
+                        updateCommentForm(track.id, {
+                          text: e.target.value,
+                        })
+                      }
+                      placeholder="Comment text"
+                      className="min-h-[110px] w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
+                    />
 
-      {commentErrorMap[track.id] ? (
-        <p className="text-sm text-red-400">{commentErrorMap[track.id]}</p>
-      ) : null}
+                    {commentErrorMap[track.id] ? (
+                      <p className="text-sm text-red-400">
+                        {commentErrorMap[track.id]}
+                      </p>
+                    ) : null}
 
-      <button
-        onClick={() => handleCreateComment(track.id)}
-        disabled={commentLoadingMap[track.id]}
-        className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-      >
-        {commentLoadingMap[track.id] ? "Добавляем..." : "Save comment"}
-      </button>
-    </div>
-  </div>
-) : null}
+                    <button
+                      onClick={() => handleCreateComment(track.id)}
+                      disabled={commentLoadingMap[track.id]}
+                      className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+                    >
+                      {commentLoadingMap[track.id]
+                        ? "Добавляем..."
+                        : "Save comment"}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="mt-5 space-y-2">
                 <p className="text-sm font-medium text-neutral-300">Versions</p>

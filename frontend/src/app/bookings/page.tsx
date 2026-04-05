@@ -47,50 +47,47 @@ export default function BookingsPage() {
   }, [slots, form.startTime]);
 
   const loadBookings = useCallback(async () => {
-  if (!token || !user) {
-    return;
-  }
-
-  try {
-    setLoading(true);
-    setError("");
-
-    const data =
-      user.role === "OWNER"
-        ? await getAllBookings(token, 1, 20)
-        : await getClientBookings(token);
-
-    setBookings(data);
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "Failed to load bookings");
-  } finally {
-    setLoading(false);
-  }
-}, [token, user]);
-
-  const loadSlots = useCallback(
-  async (date: string) => {
-    if (!token) {
+    if (!token || !user) {
       return;
     }
 
     try {
-      setSlotsLoading(true);
-      const data = await getAvailableSlots(token, date);
-      setSlots(data);
-    } catch {
-      setSlots([]);
-    } finally {
-      setSlotsLoading(false);
-    }
-  },
-  [token],
-);
+      setLoading(true);
+      setError("");
 
-  async function handleStatusChange(
-    bookingId: string,
-    status: BookingStatus,
-  ) {
+      const data =
+        user.role === "OWNER"
+          ? await getAllBookings(token, 1, 20)
+          : await getClientBookings(token);
+
+      setBookings(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, user]);
+
+  const loadSlots = useCallback(
+    async (date: string) => {
+      if (!token) {
+        return;
+      }
+
+      try {
+        setSlotsLoading(true);
+        const data = await getAvailableSlots(token, date);
+        setSlots(data);
+      } catch {
+        setSlots([]);
+      } finally {
+        setSlotsLoading(false);
+      }
+    },
+    [token]
+  );
+
+  async function handleStatusChange(bookingId: string, status: BookingStatus) {
     if (!token) {
       return;
     }
@@ -137,7 +134,7 @@ export default function BookingsPage() {
       await loadSlots(form.date);
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Не удалось создать бронирование",
+        err instanceof Error ? err.message : "Не удалось создать бронирование"
       );
     } finally {
       setSubmitLoading(false);
@@ -145,14 +142,14 @@ export default function BookingsPage() {
   }
 
   useEffect(() => {
-  if (!authLoading) {
-    void loadBookings();
-  }
-}, [authLoading, loadBookings]);
+    if (!authLoading) {
+      void loadBookings();
+    }
+  }, [authLoading, loadBookings]);
 
   useEffect(() => {
-  void loadSlots(selectedDate);
-}, [selectedDate, loadSlots]);
+    void loadSlots(selectedDate);
+  }, [selectedDate, loadSlots]);
 
   useEffect(() => {
     setForm((prev) => ({

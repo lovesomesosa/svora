@@ -26,14 +26,14 @@ export async function getProjects(token: string): Promise<Project[]> {
 export async function getAllProjects(
   token: string,
   page = 1,
-  limit = 10,
+  limit = 10
 ): Promise<Project[]> {
   const response = await apiRequest<ProjectsResponse>(
     `/api/projects/all?page=${page}&limit=${limit}`,
     {
       method: "GET",
       token,
-    },
+    }
   );
 
   return normalizeProjectsResponse(response);
@@ -41,7 +41,7 @@ export async function getAllProjects(
 
 export async function createProject(
   token: string,
-  payload: CreateProjectPayload,
+  payload: CreateProjectPayload
 ) {
   return apiRequest<CreateProjectResponse>("/api/projects", {
     method: "POST",

@@ -23,27 +23,27 @@ export default function ProjectsPage() {
     type: "SINGLE",
   });
 
- const loadProjects = useCallback(async () => {
-  if (!token || !user) {
-    return;
-  }
+  const loadProjects = useCallback(async () => {
+    if (!token || !user) {
+      return;
+    }
 
-  try {
-    setLoading(true);
-    setError("");
+    try {
+      setLoading(true);
+      setError("");
 
-    const data =
-      user.role === "OWNER"
-        ? await getAllProjects(token, 1, 20)
-        : await getProjects(token);
+      const data =
+        user.role === "OWNER"
+          ? await getAllProjects(token, 1, 20)
+          : await getProjects(token);
 
-    setProjects(data);
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "Failed to load projects");
-  } finally {
-    setLoading(false);
-  }
-}, [token, user]);
+      setProjects(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load projects");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, user]);
 
   async function handleCreateProject(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,7 +75,7 @@ export default function ProjectsPage() {
       await loadProjects();
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Не удалось создать проект",
+        err instanceof Error ? err.message : "Не удалось создать проект"
       );
     } finally {
       setSubmitLoading(false);
@@ -83,10 +83,10 @@ export default function ProjectsPage() {
   }
 
   useEffect(() => {
-  if (!authLoading) {
-    void loadProjects();
-  }
-}, [authLoading, loadProjects]);
+    if (!authLoading) {
+      void loadProjects();
+    }
+  }, [authLoading, loadProjects]);
 
   return (
     <Protected>
@@ -186,8 +186,8 @@ export default function ProjectsPage() {
                     {project.user ? (
                       <p className="mt-2 text-xs text-neutral-500">
                         Автор: {project.user.name}
-                        </p>
-                      ) : null}
+                      </p>
+                    ) : null}
                   </div>
 
                   <span className="text-xs text-neutral-500">

@@ -4,7 +4,7 @@ export async function createVersion(
   token: string,
   trackId: string,
   versionName: string,
-  fileUrl: string,
+  fileUrl: string
 ) {
   return apiRequest(`/api/tracks/${trackId}/versions`, {
     method: "POST",

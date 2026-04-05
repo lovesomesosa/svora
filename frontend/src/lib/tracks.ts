@@ -8,7 +8,7 @@ type CreateTrackPayload = {
 export async function createTrack(
   token: string,
   projectId: string,
-  payload: CreateTrackPayload,
+  payload: CreateTrackPayload
 ) {
   return apiRequest(`/api/projects/${projectId}/tracks`, {
     method: "POST",
