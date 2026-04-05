@@ -106,13 +106,21 @@ export const getAllVersions = async (page?: string, limit?: string) => {
   };
 };
 
-export const getTrackVersions = async (trackId: string, userId: string) => {
+export const getTrackVersions = async (
+  trackId: string,
+  userId: string,
+  role: string
+) => {
   const track = await prisma.track.findFirst({
     where: {
-      id: trackId,// добавить role  к версиям
-      project: {
-        userId,
-      },
+      id: trackId,
+      ...(role === "OWNER"
+        ? {} // OWNER может видеть все треки
+        : {
+            project: {
+              userId,
+            },
+          }),
     },
     include: {
       versions: {

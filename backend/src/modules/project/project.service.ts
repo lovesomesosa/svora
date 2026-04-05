@@ -92,11 +92,15 @@ export const getMyProjects = async (
   };
 };
 // сократить вывод
-export const getProjectById = async (projectId: string, userId: string) => {
+export const getProjectById = async (projectId: string, userId: string, role: string) => {
   const project = await prisma.project.findFirst({
     where: {
       id: projectId,
-      userId,
+      ...(role === "OWNER"
+        ? {} // OWNER может видеть все проекты
+        : {
+            userId,
+          }),
     },
     include: {
       tracks: {
@@ -126,6 +130,7 @@ export const getProjectById = async (projectId: string, userId: string) => {
   if (!project) {
     throw new AppError("Project not found", 404);
   }
+
   return serializeProject(project);
 };
 
@@ -162,11 +167,15 @@ export const getAllProjects = async (page?: string, limit?: string) => {
   };
 };
 
-export const getProjectTracks = async (projectId: string, userId: string) => {
+export const getProjectTracks = async (projectId: string, userId: string, role: string) => {
   const project = await prisma.project.findFirst({
     where: {
       id: projectId,
-      userId,
+      ...(role === "OWNER"
+        ? {} // OWNER может видеть все проекты
+        : {
+            userId,
+          }),
     },
     include: {
       tracks: {

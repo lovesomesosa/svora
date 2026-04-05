@@ -35,7 +35,7 @@ export const getComments = asyncHandler(
     const comments = await commentService.getCommentsByTrack(
       req.params.id,
       req.user!.userId,
-      req.user!.role,
+      req.user!.role,  // передаем роль пользователя
       typeof page === "string" ? page : undefined,
       typeof limit === "string" ? limit : undefined,
     );
