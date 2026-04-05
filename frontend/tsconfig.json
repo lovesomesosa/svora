@@ -13,12 +13,13 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "ignoreDeprecations": "6.0", // Игнорируем предупреждения о депрецированных API в TypeScript 6.0 и выше ??????
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "baseUrl": ".",
+    "baseUrl": ".", // <----- ошибка
     "paths": {
       "@/*": ["./src/*"]
     }

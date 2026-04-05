@@ -1,66 +1,131 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Protected from "@/components/Protected";
+import { useAuth } from "@/providers/AuthProvider";
+import { getProjectById } from "@/lib/project-details";
+import { createTrack } from "@/lib/tracks";
+import { createVersion } from "@/lib/versions";
+import { createComment } from "@/lib/comments";
+import type { Track } from "@/lib/types";
 
-type ProjectPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+export default function ProjectDetailsPage() {
+  const { id } = useParams();
+  const { token } = useAuth();
 
-const tracks = [
-  {
-    id: "1",
-    title: "Intro",
-    order: 1,
-    versions: 2,
-    comments: 3,
-  },
-  {
-    id: "2",
-    title: "Main Theme",
-    order: 2,
-    versions: 4,
-    comments: 6,
-  },
-];
+  const [project, setProject] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function ProjectDetailsPage({
-  params,
-}: ProjectPageProps) {
-  const { id } = await params;
+  const [trackTitle, setTrackTitle] = useState("");
+
+  async function loadProject() {
+    if (!token || !id) return;
+
+    const data = await getProjectById(token, id as string);
+    setProject(data);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    void loadProject();
+  }, [token, id]);
+
+  async function handleCreateTrack() {
+    if (!trackTitle || !token) return;
+
+    await createTrack(token, id as string, trackTitle);
+    setTrackTitle("");
+    await loadProject();
+  }
+
+  async function handleCreateVersion(trackId: string) {
+    const versionName = prompt("Version name");
+    const fileUrl = prompt("File URL");
+
+    if (!versionName || !fileUrl || !token) return;
+
+    await createVersion(token, trackId, versionName, fileUrl);
+    await loadProject();
+  }
+
+  async function handleCreateComment(trackId: string) {
+    const text = prompt("Comment");
+
+    if (!text || !token) return;
+
+    await createComment(token, trackId, text);
+    await loadProject();
+  }
+
+  if (loading) return <p>Loading...</p>;
+  if (!project) return <p>Project not found</p>;
 
   return (
     <Protected>
-        <section className="space-y-8">
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-        <p className="text-sm text-neutral-500">Project ID: {id}</p>
-        <h1 className="mt-2 text-3xl font-semibold">Project Details</h1>
-        <p className="mt-2 text-neutral-400">
-          Здесь будет полная информация о проекте, статусе и составе треков.
-        </p>
-      </div>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-semibold">{project.title}</h1>
 
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Tracks</h2>
-
-        {tracks.map((track) => (
-          <div
-            key={track.id}
-            className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5"
+        {/* CREATE TRACK */}
+        <div className="flex gap-2">
+          <input
+            value={trackTitle}
+            onChange={(e) => setTrackTitle(e.target.value)}
+            placeholder="Track title"
+            className="rounded-xl bg-neutral-900 px-4 py-2"
+          />
+          <button
+            onClick={handleCreateTrack}
+            className="bg-white text-black px-4 py-2 rounded-xl"
           >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-medium">
-                  {track.order}. {track.title}
-                </h3>
-                <p className="mt-1 text-sm text-neutral-400">
-                  Versions: {track.versions} • Comments: {track.comments}
-                </p>
+            Add track
+          </button>
+        </div>
+
+        {/* TRACKS */}
+        <div className="space-y-4">
+          {project.tracks.map((track: Track) => (
+            <div
+              key={track.id}
+              className="border border-neutral-800 p-4 rounded-xl"
+            >
+              <h2 className="text-xl">{track.title}</h2>
+
+              <button
+                onClick={() => handleCreateVersion(track.id)}
+                className="text-sm text-blue-400"
+              >
+                + Add version
+              </button>
+
+              <button
+                onClick={() => handleCreateComment(track.id)}
+                className="ml-3 text-sm text-green-400"
+              >
+                + Comment
+              </button>
+
+              {/* VERSIONS */}
+              <div className="mt-3 space-y-1">
+                {track.versions?.map((v) => (
+                  <div key={v.id} className="text-sm text-neutral-400">
+                    🎵 {v.versionName}
+                  </div>
+                ))}
+              </div>
+
+              {/* COMMENTS */}
+              <div className="mt-3 space-y-1">
+                {track.comments?.map((c) => (
+                  <div key={c.id} className="text-sm text-neutral-500">
+                    💬 {c.text}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </section>
     </Protected>
   );
 }

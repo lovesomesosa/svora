@@ -51,6 +51,7 @@ export type CreateProjectResponse = {
   data: Project;
 };
 
+
 // BOOKING
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
@@ -104,4 +105,55 @@ export type CreateBookingResponse = {
   success: boolean;
   message: string;
   data: Booking;
+};
+
+/// NEW
+
+export type Track = {
+  id: string;
+  projectId: string;
+  title: string;
+  order: number | null;
+  createdAt: string;
+  updatedAt: string;
+  versions?: Version[];
+  comments?: Comment[];
+};
+
+export type Version = {
+  id: string;
+  trackId: string;
+  versionName: string;
+  fileUrl: string;
+  createdAt: string;
+};
+
+export type Comment = {
+  id: string;
+  trackId: string;
+  userId: string;
+  text: string;
+  timestamp: string | null;
+  createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+  };
+};
+
+export type ProjectDetailsResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    userId: string;
+    title: string;
+    type: ProjectType;
+    status: ProjectStatus;
+    createdAt: string;
+    updatedAt: string;
+    tracks: Track[];
+  };
 };
