@@ -61,6 +61,7 @@ export const getProjectById = asyncHandler<AuthRequest<ProjectIdParams>>(
     const project = await projectService.getProjectById(
       parsedParams.data.id,
       req.user!.userId,
+      req.user!.role,  // передаем роль пользователя
     );
 
     return success(res, project, "Project fetched");
@@ -83,6 +84,7 @@ export const getProjectTracks = asyncHandler<AuthRequest<ProjectIdParams>>(
     const tracks = await projectService.getProjectTracks(
       parsedParams.data.id,
       req.user!.userId,
+      req.user!.role,
     );
     console.log("getProjectTracks called");
     return success(res, tracks, "Project tracks fetched");

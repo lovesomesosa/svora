@@ -40,3 +40,28 @@ export const getAllTracks = asyncHandler(
     return success(res, tracks, "All tracks fetched");
   },
 );
+
+type TrackIdParams = {
+  id: string;
+};
+
+export const getTrackById = asyncHandler<AuthRequest<TrackIdParams>>(
+  async (req: AuthRequest<TrackIdParams>, res: Response) => {
+    const track = await trackService.getTrackById(
+      req.params.id,
+      req.user!.userId
+    );
+    return success(res, track, "Track fetched");
+  }
+);
+
+export const getTracksByProject = asyncHandler<AuthRequest>(
+  async (req: AuthRequest, res: Response) => {
+    const { projectId } = req.params;
+    const tracks = await trackService.getTracksByProject(
+      projectId,
+      req.user!.userId
+    );
+    return success(res, tracks, "Tracks fetched");
+  }
+);

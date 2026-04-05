@@ -46,6 +46,7 @@ export const getTrackVersions = asyncHandler(
     const versions = await versionService.getTrackVersions(
       req.params.id,
       req.user!.userId,
+      req.user!.role,  // передаем роль пользователя
     );
 
     return success(res, versions, "Track versions fetched");
