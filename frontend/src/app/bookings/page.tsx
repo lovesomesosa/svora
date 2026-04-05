@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Protected from "@/components/Protected";
 import { useAuth } from "@/providers/AuthProvider";
 import {
@@ -46,29 +46,30 @@ export default function BookingsPage() {
     return slots.filter((slot) => slot > form.startTime);
   }, [slots, form.startTime]);
 
-  async function loadBookings() {
-    if (!token || !user) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError("");
-
-      const data =
-        user.role === "OWNER"
-          ? await getAllBookings(token, 1, 20)
-          : await getClientBookings(token);
-
-      setBookings(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load bookings");
-    } finally {
-      setLoading(false);
-    }
+  const loadBookings = useCallback(async () => {
+  if (!token || !user) {
+    return;
   }
 
-  async function loadSlots(date: string) {
+  try {
+    setLoading(true);
+    setError("");
+
+    const data =
+      user.role === "OWNER"
+        ? await getAllBookings(token, 1, 20)
+        : await getClientBookings(token);
+
+    setBookings(data);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Failed to load bookings");
+  } finally {
+    setLoading(false);
+  }
+}, [token, user]);
+
+  const loadSlots = useCallback(
+  async (date: string) => {
     if (!token) {
       return;
     }
@@ -82,7 +83,9 @@ export default function BookingsPage() {
     } finally {
       setSlotsLoading(false);
     }
-  }
+  },
+  [token],
+);
 
   async function handleStatusChange(
     bookingId: string,
@@ -142,14 +145,14 @@ export default function BookingsPage() {
   }
 
   useEffect(() => {
-    if (!authLoading) {
-      void loadBookings();
-    }
-  }, [token, user, authLoading]);
+  if (!authLoading) {
+    void loadBookings();
+  }
+}, [authLoading, loadBookings]);
 
   useEffect(() => {
-    void loadSlots(selectedDate);
-  }, [selectedDate, token]);
+  void loadSlots(selectedDate);
+}, [selectedDate, loadSlots]);
 
   useEffect(() => {
     setForm((prev) => ({

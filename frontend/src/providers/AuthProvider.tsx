@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import { getToken, removeToken, setToken as saveToken } from "@/lib/auth";
 import type { AuthUser, MeResponse } from "@/lib/types";
@@ -72,18 +72,18 @@ export function AuthProvider({
     setUser(null);
   }
 
-  const value = useMemo(
-    () => ({
-      user,
-      token,
-      loading,
-      login,
-      logout,
-    }),
-    [user, token, loading],
-  );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (  
+  <AuthContext.Provider    
+  value={{      
+    user,      
+    token,      
+    loading,      
+    login,      
+    logout,    
+  }}  
+  >    
+  {children}  
+  </AuthContext.Provider>);
 }
 
 export function useAuth() {

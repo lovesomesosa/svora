@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Protected from "@/components/Protected";
 import { useAuth } from "@/providers/AuthProvider";
@@ -23,27 +23,27 @@ export default function ProjectsPage() {
     type: "SINGLE",
   });
 
-  async function loadProjects() {
-    if (!token || !user) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError("");
-
-      const data =
-        user.role === "OWNER"
-          ? await getAllProjects(token, 1, 20)
-          : await getProjects(token);
-
-      setProjects(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load projects");
-    } finally {
-      setLoading(false);
-    }
+ const loadProjects = useCallback(async () => {
+  if (!token || !user) {
+    return;
   }
+
+  try {
+    setLoading(true);
+    setError("");
+
+    const data =
+      user.role === "OWNER"
+        ? await getAllProjects(token, 1, 20)
+        : await getProjects(token);
+
+    setProjects(data);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Failed to load projects");
+  } finally {
+    setLoading(false);
+  }
+}, [token, user]);
 
   async function handleCreateProject(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -83,10 +83,10 @@ export default function ProjectsPage() {
   }
 
   useEffect(() => {
-    if (!authLoading) {
-      void loadProjects();
-    }
-  }, [token, user, authLoading]);
+  if (!authLoading) {
+    void loadProjects();
+  }
+}, [authLoading, loadProjects]);
 
   return (
     <Protected>
@@ -183,10 +183,11 @@ export default function ProjectsPage() {
                     <p className="mt-2 text-xs text-neutral-500">
                       userId: {project.userId}
                     </p>
-                    {(project as any).user ? (
-                        <p className="mt-2 text-xs text-neutral-500">
-                            Автор: {(project as any).user.name}
-                            </p>) : null}
+                    {project.user ? (
+                      <p className="mt-2 text-xs text-neutral-500">
+                        Автор: {project.user.name}
+                        </p>
+                      ) : null}
                   </div>
 
                   <span className="text-xs text-neutral-500">

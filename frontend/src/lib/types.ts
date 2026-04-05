@@ -24,6 +24,13 @@ export type MeResponse = {
 export type ProjectType = "SINGLE" | "ALBUM";
 export type ProjectStatus = "RECORDING" | "MIXING" | "MASTERING" | "COMPLETED";
 
+export type ProjectOwner = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+};
+
 export type Project = {
   id: string;
   userId: string;
@@ -32,6 +39,7 @@ export type Project = {
   status: ProjectStatus;
   createdAt: string;
   updatedAt: string;
+  user?: ProjectOwner;
 };
 
 export type ProjectsResponse = {

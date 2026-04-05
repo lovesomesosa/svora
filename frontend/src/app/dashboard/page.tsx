@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Protected from "@/components/Protected";
 const cards = [
   {
@@ -44,18 +45,18 @@ export default function DashboardPage() {
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
         <h2 className="text-xl font-semibold">Быстрые действия</h2>
         <div className="mt-4 flex flex-wrap gap-3">
-          <a
+          <Link
             href="/bookings"
             className="rounded-xl border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800"
           >
             Перейти к бронированиям
-          </a>
-          <a
+          </Link>
+          <Link
             href="/projects"
             className="rounded-xl border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800"
           >
             Перейти к проектам
-          </a>
+          </Link>
         </div>
       </div>
     </section>
