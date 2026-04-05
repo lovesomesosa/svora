@@ -21,6 +21,7 @@ export const createTrackVersion = asyncHandler(
     const version = await versionService.createTrackVersion(
       req.params.id,
       req.user!.userId,
+      req.user!.role,  // передаем роль пользователя
       parsed.data,
     );
 

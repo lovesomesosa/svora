@@ -21,6 +21,7 @@ export const createTrack = asyncHandler(
     const track = await trackService.createTrack(
       req.params.id,
       req.user!.userId,
+      req.user!.role,  // передаем роль пользователя
       parsed.data,
     );
 

@@ -31,14 +31,19 @@ const serializeComment = (comment: SerializableComment) => ({
 export const createComment = async (
   trackId: string,
   userId: string,
+  role: string,
   data: CreateCommentInput,
 ) => {
   const track = await prisma.track.findFirst({
     where: {
       id: trackId,
-      project: {
-        userId,
-      },
+      ...(role === "OWNER"
+        ? {}
+        : {
+            project: {
+              userId,
+            },
+          }),
     },
   });
 

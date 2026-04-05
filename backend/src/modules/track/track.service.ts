@@ -32,17 +32,18 @@ const serializeTrack = (track: SerializableTrack) => ({
 export const createTrack = async (
   projectId: string,
   userId: string,
+  role: string,
   data: CreateTrackInput,
 ) => {
   const project = await prisma.project.findFirst({
     where: {
       id: projectId,
-      userId,
+      ...(role === "OWNER" ? {} : { userId }),
     },
     include: {
       tracks: true,
     },
-  });
+});
 
   if (!project) {
     throw new AppError("Project not found", 404);

@@ -22,14 +22,19 @@ const serializeVersion = (version: SerializableVersion) => ({
 export const createTrackVersion = async (
   trackId: string,
   userId: string,
+  role: string,
   data: CreateTrackVersionInput,
 ) => {
   const track = await prisma.track.findFirst({
     where: {
       id: trackId,
-      project: {
-        userId,
-      },
+      ...(role === "OWNER"
+        ? {} // OWNER может видеть все треки
+        : {
+            project: {
+              userId,
+            },
+          }),
     },
     include: {
       versions: true,
