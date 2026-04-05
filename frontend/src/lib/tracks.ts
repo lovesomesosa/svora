@@ -1,13 +1,18 @@
 import { apiRequest } from "@/lib/api";
 
+type CreateTrackPayload = {
+  title: string;
+  order?: number;
+};
+
 export async function createTrack(
   token: string,
   projectId: string,
-  title: string,
+  payload: CreateTrackPayload,
 ) {
   return apiRequest(`/api/projects/${projectId}/tracks`, {
     method: "POST",
     token,
-    body: { title },
+    body: payload,
   });
 }
