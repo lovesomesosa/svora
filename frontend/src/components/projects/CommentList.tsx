@@ -8,7 +8,7 @@ type CommentListProps = {
 };
 
 export default function CommentList({ comments }: CommentListProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const hasComments = comments && comments.length > 0;
 
@@ -21,7 +21,7 @@ export default function CommentList({ comments }: CommentListProps) {
           onClick={() => setIsOpen((prev) => !prev)}
           className="text-xs text-neutral-400 hover:text-neutral-200"
         >
-          {isOpen ? "Hide" : "Show"}
+          {isOpen ? "Hide" : `Show (${comments?.length ?? 0})`}
         </button>
       </div>
 

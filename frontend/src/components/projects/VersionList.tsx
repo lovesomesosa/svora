@@ -8,7 +8,7 @@ type VersionListProps = {
 };
 
 export default function VersionList({ versions }: VersionListProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const hasVersions = versions && versions.length > 0;
 
@@ -21,7 +21,7 @@ export default function VersionList({ versions }: VersionListProps) {
           onClick={() => setIsOpen((prev) => !prev)}
           className="text-xs text-neutral-400 hover:text-neutral-200"
         >
-          {isOpen ? "Hide" : "Show"}
+          {isOpen ? "Hide" : `Show (${versions?.length ?? 0})`}
         </button>
       </div>
 
