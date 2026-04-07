@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Protected from "@/components/Protected";
+import TrackCard from "@/components/projects/TrackCard";
 import { useAuth } from "@/providers/AuthProvider";
 import { getProjectById } from "@/lib/project-details";
 import { createTrack } from "@/lib/tracks";
 import { createVersion } from "@/lib/versions";
 import { createComment } from "@/lib/comments";
-import type { ProjectDetailsResponse, Track } from "@/lib/types";
+import type { ProjectDetailsResponse } from "@/lib/types";
 
 type VersionFormState = {
   versionName: string;
@@ -21,11 +22,10 @@ type CommentFormState = {
 
 export default function ProjectDetailsPage() {
   const { id } = useParams();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
-  const [project, setProject] = useState<ProjectDetailsResponse["data"] | null>(
-    null
-  );
+  const [project, setProject] =
+    useState<ProjectDetailsResponse["data"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -46,31 +46,12 @@ export default function ProjectDetailsPage() {
   const [commentLoadingMap, setCommentLoadingMap] = useState<
     Record<string, boolean>
   >({});
-  const [versionErrorMap, setVersionErrorMap] = useState<
-    Record<string, string>
-  >({});
-  const [commentErrorMap, setCommentErrorMap] = useState<
-    Record<string, string>
-  >({});
-  const [openVersionForms, setOpenVersionForms] = useState<
-    Record<string, boolean>
-  >({});
-  const [openCommentForms, setOpenCommentForms] = useState<
-    Record<string, boolean>
-  >({});
-
-  function toggleVersionForm(trackId: string) {
-    setOpenVersionForms((prev) => ({
-      ...prev,
-      [trackId]: !prev[trackId],
-    }));
-  }
-  function toggleCommentForm(trackId: string) {
-    setOpenCommentForms((prev) => ({
-      ...prev,
-      [trackId]: !prev[trackId],
-    }));
-  }
+  const [versionErrorMap, setVersionErrorMap] = useState<Record<string, string>>(
+    {},
+  );
+  const [commentErrorMap, setCommentErrorMap] = useState<Record<string, string>>(
+    {},
+  );
 
   const loadProject = useCallback(async () => {
     if (!token || !id) {
@@ -143,18 +124,13 @@ export default function ProjectDetailsPage() {
       setTrackOrder("");
       await loadProject();
     } catch (err) {
-      setTrackError(
-        err instanceof Error ? err.message : "Failed to create track"
-      );
+      setTrackError(err instanceof Error ? err.message : "Failed to create track");
     } finally {
       setTrackLoading(false);
     }
   }
 
-  function updateVersionForm(
-    trackId: string,
-    patch: Partial<VersionFormState>
-  ) {
+  function updateVersionForm(trackId: string, patch: Partial<VersionFormState>) {
     setVersionForms((prev) => ({
       ...prev,
       [trackId]: {
@@ -164,10 +140,7 @@ export default function ProjectDetailsPage() {
     }));
   }
 
-  function updateCommentForm(
-    trackId: string,
-    patch: Partial<CommentFormState>
-  ) {
+  function updateCommentForm(trackId: string, patch: Partial<CommentFormState>) {
     setCommentForms((prev) => ({
       ...prev,
       [trackId]: {
@@ -207,10 +180,7 @@ export default function ProjectDetailsPage() {
       }));
 
       await createVersion(token, trackId, versionName, fileUrl);
-      setOpenVersionForms((prev) => ({
-        ...prev,
-        [trackId]: false,
-      }));
+
       setVersionForms((prev) => ({
         ...prev,
         [trackId]: {
@@ -263,10 +233,7 @@ export default function ProjectDetailsPage() {
       }));
 
       await createComment(token, trackId, text);
-      setOpenCommentForms((prev) => ({
-        ...prev,
-        [trackId]: false,
-      }));
+
       setCommentForms((prev) => ({
         ...prev,
         [trackId]: {
@@ -307,6 +274,8 @@ export default function ProjectDetailsPage() {
     );
   }
 
+  const canEdit = user?.role === "CLIENT" && user.userId === project.userId;
+
   return (
     <Protected>
       <div className="space-y-6">
@@ -315,221 +284,92 @@ export default function ProjectDetailsPage() {
           <p className="mt-2 text-sm text-neutral-400">
             {project.type} • {project.status}
           </p>
+          <p className="mt-1 text-xs text-neutral-500">
+            Created: {new Date(project.createdAt).toLocaleString("ru-RU")}
+          </p>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-          <h2 className="text-lg font-medium">Добавить трек</h2>
+        {canEdit ? (
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+            <h2 className="text-lg font-medium">Добавить трек</h2>
 
-          <div className="mt-4 flex flex-col gap-3 md:flex-row">
-            <input
-              value={trackTitle}
-              onChange={(e) => setTrackTitle(e.target.value)}
-              placeholder="Название трека"
-              className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
-            />
-
-            {project.type === "ALBUM" ? (
+            <div className="mt-4 flex flex-col gap-3 md:flex-row">
               <input
-                type="number"
-                min="1"
-                value={trackOrder}
-                onChange={(e) => setTrackOrder(e.target.value)}
-                placeholder="Номер"
-                className="w-32 rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
+                value={trackTitle}
+                onChange={(e) => setTrackTitle(e.target.value)}
+                placeholder="Название трека"
+                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
               />
+
+              {project.type === "ALBUM" ? (
+                <input
+                  type="number"
+                  min="1"
+                  value={trackOrder}
+                  onChange={(e) => setTrackOrder(e.target.value)}
+                  placeholder="Номер"
+                  className="w-32 rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
+                />
+              ) : null}
+
+              <button
+                onClick={handleCreateTrack}
+                disabled={trackLoading}
+                className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+              >
+                {trackLoading ? "Добавляем..." : "Add track"}
+              </button>
+            </div>
+
+            {trackError ? (
+              <p className="mt-3 text-sm text-red-400">{trackError}</p>
             ) : null}
 
-            <button
-              onClick={handleCreateTrack}
-              disabled={trackLoading}
-              className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-            >
-              {trackLoading ? "Добавляем..." : "Add track"}
-            </button>
+            {project.type === "ALBUM" ? (
+              <p className="mt-2 text-sm text-neutral-500">
+                Для альбома укажи порядок трека.
+              </p>
+            ) : null}
           </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-neutral-800 bg-neutral-900 p-4 text-sm text-neutral-500">
+            Для этой роли доступен только просмотр проекта.
+          </div>
+        )}
 
-          {trackError ? (
-            <p className="mt-3 text-sm text-red-400">{trackError}</p>
-          ) : null}
-
-          {project.type === "ALBUM" ? (
-            <p className="mt-2 text-sm text-neutral-500">
-              Для альбома укажи порядок трека.
-            </p>
-          ) : null}
-        </div>
-
-        <div className="space-y-4">
-          {project.tracks.map((track: Track) => (
-            <div
-              key={track.id}
-              className="rounded-xl border border-neutral-800 bg-neutral-900 p-4"
-            >
-              <h2 className="text-xl font-medium">
-                {track.order ? `${track.order}. ` : ""}
-                {track.title}
-              </h2>
-
-              <div className="mt-4 flex flex-wrap gap-3">
-                <button
-                  onClick={() => toggleVersionForm(track.id)}
-                  className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
-                >
-                  {openVersionForms[track.id]
-                    ? "Hide version form"
-                    : "Add version"}
-                </button>
-
-                <button
-                  onClick={() => toggleCommentForm(track.id)}
-                  className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
-                >
-                  {openCommentForms[track.id]
-                    ? "Hide comment form"
-                    : "Add comment"}
-                </button>
-              </div>
-
-              {openVersionForms[track.id] ? (
-                <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-                  <p className="text-sm font-medium text-neutral-300">
-                    Add version
-                  </p>
-
-                  <div className="mt-3 space-y-3">
-                    <input
-                      value={versionForms[track.id]?.versionName || ""}
-                      onChange={(e) =>
-                        updateVersionForm(track.id, {
-                          versionName: e.target.value,
-                        })
-                      }
-                      placeholder="Version name"
-                      className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-                    />
-
-                    <input
-                      value={versionForms[track.id]?.fileUrl || ""}
-                      onChange={(e) =>
-                        updateVersionForm(track.id, {
-                          fileUrl: e.target.value,
-                        })
-                      }
-                      placeholder="File URL"
-                      className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-                    />
-
-                    {versionErrorMap[track.id] ? (
-                      <p className="text-sm text-red-400">
-                        {versionErrorMap[track.id]}
-                      </p>
-                    ) : null}
-
-                    <button
-                      onClick={() => handleCreateVersion(track.id)}
-                      disabled={versionLoadingMap[track.id]}
-                      className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-                    >
-                      {versionLoadingMap[track.id]
-                        ? "Добавляем..."
-                        : "Save version"}
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-
-              {openCommentForms[track.id] ? (
-                <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-                  <p className="text-sm font-medium text-neutral-300">
-                    Add comment
-                  </p>
-
-                  <div className="mt-3 space-y-3">
-                    <textarea
-                      value={commentForms[track.id]?.text || ""}
-                      onChange={(e) =>
-                        updateCommentForm(track.id, {
-                          text: e.target.value,
-                        })
-                      }
-                      placeholder="Comment text"
-                      className="min-h-[110px] w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-                    />
-
-                    {commentErrorMap[track.id] ? (
-                      <p className="text-sm text-red-400">
-                        {commentErrorMap[track.id]}
-                      </p>
-                    ) : null}
-
-                    <button
-                      onClick={() => handleCreateComment(track.id)}
-                      disabled={commentLoadingMap[track.id]}
-                      className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-                    >
-                      {commentLoadingMap[track.id]
-                        ? "Добавляем..."
-                        : "Save comment"}
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-
-              <div className="mt-5 space-y-2">
-                <p className="text-sm font-medium text-neutral-300">Versions</p>
-
-                {track.versions && track.versions.length > 0 ? (
-                  <div className="space-y-2">
-                    {track.versions.map((v) => (
-                      <div
-                        key={v.id}
-                        className="rounded-lg border border-neutral-800 bg-neutral-950 p-3 text-sm text-neutral-400"
-                      >
-                        <p className="font-medium text-neutral-200">
-                          🎵 {v.versionName}
-                        </p>
-                        <a
-                          href={v.fileUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-1 block break-all text-xs text-blue-400"
-                        >
-                          {v.fileUrl}
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-neutral-500">No versions</p>
-                )}
-              </div>
-
-              <div className="mt-5 space-y-2">
-                <p className="text-sm font-medium text-neutral-300">Comments</p>
-
-                {track.comments && track.comments.length > 0 ? (
-                  <div className="space-y-2">
-                    {track.comments.map((c) => (
-                      <div
-                        key={c.id}
-                        className="rounded-lg border border-neutral-800 bg-neutral-950 p-3 text-sm text-neutral-500"
-                      >
-                        <p>{c.text}</p>
-                        {c.user ? (
-                          <p className="mt-1 text-xs text-neutral-600">
-                            {c.user.name} • {c.user.role}
-                          </p>
-                        ) : null}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-neutral-500">No comments</p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        {project.tracks.length > 0 ? (
+          <div className="space-y-4">
+            {project.tracks.map((track) => (
+              <TrackCard
+                key={track.id}
+                track={track}
+                canEdit={canEdit}
+                versionName={versionForms[track.id]?.versionName || ""}
+                fileUrl={versionForms[track.id]?.fileUrl || ""}
+                commentText={commentForms[track.id]?.text || ""}
+                versionLoading={Boolean(versionLoadingMap[track.id])}
+                commentLoading={Boolean(commentLoadingMap[track.id])}
+                versionError={versionErrorMap[track.id] || ""}
+                commentError={commentErrorMap[track.id] || ""}
+                onVersionNameChange={(value) =>
+                  updateVersionForm(track.id, { versionName: value })
+                }
+                onFileUrlChange={(value) =>
+                  updateVersionForm(track.id, { fileUrl: value })
+                }
+                onCommentTextChange={(value) =>
+                  updateCommentForm(track.id, { text: value })
+                }
+                onCreateVersion={() => handleCreateVersion(track.id)}
+                onCreateComment={() => handleCreateComment(track.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-neutral-800 bg-neutral-900 p-6 text-neutral-500">
+            В этом проекте пока нет треков.
+          </div>
+        )}
       </div>
     </Protected>
   );
