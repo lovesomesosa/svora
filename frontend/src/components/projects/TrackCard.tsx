@@ -27,7 +27,7 @@ type TrackCardProps = {
 };
 
 export default function TrackCard({
-  track,
+ track,
   canEdit,
   versionName,
   fileUrl,
@@ -82,66 +82,78 @@ export default function TrackCard({
         </div>
       )}
 
-      {canEdit && isVersionFormOpen ? (
-        <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-          <p className="text-sm font-medium text-neutral-300">Add version</p>
+      <div
+  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+    canEdit && isVersionFormOpen
+      ? "mt-4 max-h-[500px] opacity-100"
+      : "max-h-0 opacity-0"
+  }`}
+>
+  <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+    <p className="text-sm font-medium text-neutral-300">Add version</p>
 
-          <div className="mt-3 space-y-3">
-            <input
-              value={versionName}
-              onChange={(e) => onVersionNameChange(e.target.value)}
-              placeholder="Version name"
-              className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-            />
+    <div className="mt-3 space-y-3">
+      <input
+        value={versionName}
+        onChange={(e) => onVersionNameChange(e.target.value)}
+        placeholder="Version name"
+        className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
+      />
 
-            <input
-              value={fileUrl}
-              onChange={(e) => onFileUrlChange(e.target.value)}
-              placeholder="File URL"
-              className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-            />
+      <input
+        value={fileUrl}
+        onChange={(e) => onFileUrlChange(e.target.value)}
+        placeholder="File URL"
+        className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
+      />
 
-            {versionError ? (
-              <p className="text-sm text-red-400">{versionError}</p>
-            ) : null}
-
-            <button
-              onClick={onCreateVersion}
-              disabled={versionLoading}
-              className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-            >
-              {versionLoading ? "Добавляем..." : "Save version"}
-            </button>
-          </div>
-        </div>
+      {versionError ? (
+        <p className="text-sm text-red-400">{versionError}</p>
       ) : null}
 
-      {canEdit && isCommentFormOpen ? (
-        <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-          <p className="text-sm font-medium text-neutral-300">Add comment</p>
+      <button
+        onClick={onCreateVersion}
+        disabled={versionLoading}
+        className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+      >
+        {versionLoading ? "Добавляем..." : "Save version"}
+      </button>
+    </div>
+  </div>
+</div>
 
-          <div className="mt-3 space-y-3">
-            <textarea
-              value={commentText}
-              onChange={(e) => onCommentTextChange(e.target.value)}
-              placeholder="Comment text"
-              className="min-h-[110px] w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
-            />
+      <div
+  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+    canEdit && isCommentFormOpen
+      ? "mt-4 max-h-[500px] opacity-100"
+      : "max-h-0 opacity-0"
+  }`}
+>
+  <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+    <p className="text-sm font-medium text-neutral-300">Add comment</p>
 
-            {commentError ? (
-              <p className="text-sm text-red-400">{commentError}</p>
-            ) : null}
+    <div className="mt-3 space-y-3">
+      <textarea
+        value={commentText}
+        onChange={(e) => onCommentTextChange(e.target.value)}
+        placeholder="Comment text"
+        className="min-h-[110px] w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3"
+      />
 
-            <button
-              onClick={onCreateComment}
-              disabled={commentLoading}
-              className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-            >
-              {commentLoading ? "Добавляем..." : "Save comment"}
-            </button>
-          </div>
-        </div>
+      {commentError ? (
+        <p className="text-sm text-red-400">{commentError}</p>
       ) : null}
+
+      <button
+        onClick={onCreateComment}
+        disabled={commentLoading}
+        className="rounded-xl bg-white px-4 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+      >
+        {commentLoading ? "Добавляем..." : "Save comment"}
+      </button>
+    </div>
+  </div>
+</div>
 
       <VersionList versions={track.versions} />
       <CommentList comments={track.comments} />
