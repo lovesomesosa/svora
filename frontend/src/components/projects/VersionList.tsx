@@ -25,7 +25,14 @@ export default function VersionList({ versions }: VersionListProps) {
         </button>
       </div>
 
-      {isOpen ? (
+      <div
+      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+        isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+        >
+          {hasVersions ? (
+            <div className="space-y-2">
+              {isOpen ? (
         hasVersions ? (
           <div className="space-y-2">
             {versions.map((version) => (
@@ -58,6 +65,13 @@ export default function VersionList({ versions }: VersionListProps) {
           </div>
         )
       ) : null}
+                  </div>
+                  ) : (
+                  <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950 p-4 text-sm text-neutral-500">
+                    Пока нет версий.
+                    </div>
+                  )}
+                  </div>
     </div>
   );
 }

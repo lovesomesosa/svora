@@ -25,10 +25,15 @@ export default function CommentList({ comments }: CommentListProps) {
         </button>
       </div>
 
-      {isOpen ? (
-        hasComments ? (
-          <div className="space-y-2">
-            {comments.map((comment) => (
+
+      <div
+      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+        isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+        >
+          {hasComments ? (
+            <div className="space-y-2">
+              {comments.map((comment) => (
               <div
                 key={comment.id}
                 className="rounded-lg border border-neutral-800 bg-neutral-950 p-3 text-sm text-neutral-400"
@@ -55,13 +60,13 @@ export default function CommentList({ comments }: CommentListProps) {
                 </div>
               </div>
             ))}
-          </div>
-        ) : (
-          <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950 p-4 text-sm text-neutral-500">
-            Пока нет комментариев.
-          </div>
-        )
-      ) : null}
+                  </div>
+                  ) : (
+                  <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950 p-4 text-sm text-neutral-500">
+                    Пока нет комментариев.
+                    </div>
+                  )}
+                  </div>
     </div>
   );
 }

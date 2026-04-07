@@ -24,8 +24,9 @@ export default function ProjectDetailsPage() {
   const { id } = useParams();
   const { token, user } = useAuth();
 
-  const [project, setProject] =
-    useState<ProjectDetailsResponse["data"] | null>(null);
+  const [project, setProject] = useState<ProjectDetailsResponse["data"] | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -33,13 +34,13 @@ export default function ProjectDetailsPage() {
   const [trackOrder, setTrackOrder] = useState("");
   const [trackError, setTrackError] = useState("");
   const [trackLoading, setTrackLoading] = useState(false);
-  
+
   // State для управления открытием форм и данными форм для каждой версии и комментария(вынесены на уровень страницы, чтобы сохранять их состояние при открытии/закрытии форм и обновлении данных трека)
   const [openVersionForms, setOpenVersionForms] = useState<
-  Record<string, boolean>
+    Record<string, boolean>
   >({});
   const [openCommentForms, setOpenCommentForms] = useState<
-  Record<string, boolean>
+    Record<string, boolean>
   >({});
 
   const [versionForms, setVersionForms] = useState<
@@ -54,12 +55,12 @@ export default function ProjectDetailsPage() {
   const [commentLoadingMap, setCommentLoadingMap] = useState<
     Record<string, boolean>
   >({});
-  const [versionErrorMap, setVersionErrorMap] = useState<Record<string, string>>(
-    {},
-  );
-  const [commentErrorMap, setCommentErrorMap] = useState<Record<string, string>>(
-    {},
-  );
+  const [versionErrorMap, setVersionErrorMap] = useState<
+    Record<string, string>
+  >({});
+  const [commentErrorMap, setCommentErrorMap] = useState<
+    Record<string, string>
+  >({});
 
   const loadProject = useCallback(async () => {
     if (!token || !id) {
@@ -132,7 +133,9 @@ export default function ProjectDetailsPage() {
       setTrackOrder("");
       await loadProject();
     } catch (err) {
-      setTrackError(err instanceof Error ? err.message : "Failed to create track");
+      setTrackError(
+        err instanceof Error ? err.message : "Failed to create track"
+      );
     } finally {
       setTrackLoading(false);
     }
@@ -140,19 +143,22 @@ export default function ProjectDetailsPage() {
 
   // Функции для управления открытием форм и данными форм для каждой версии и комментария
   function toggleVersionForm(trackId: string) {
-  setOpenVersionForms((prev) => ({
-    ...prev,
-    [trackId]: !prev[trackId],
-  }));
-}
+    setOpenVersionForms((prev) => ({
+      ...prev,
+      [trackId]: !prev[trackId],
+    }));
+  }
   function toggleCommentForm(trackId: string) {
-  setOpenCommentForms((prev) => ({
-    ...prev,
-    [trackId]: !prev[trackId],
-  }));
-}
+    setOpenCommentForms((prev) => ({
+      ...prev,
+      [trackId]: !prev[trackId],
+    }));
+  }
 
-  function updateVersionForm(trackId: string, patch: Partial<VersionFormState>) {
+  function updateVersionForm(
+    trackId: string,
+    patch: Partial<VersionFormState>
+  ) {
     setVersionForms((prev) => ({
       ...prev,
       [trackId]: {
@@ -162,7 +168,10 @@ export default function ProjectDetailsPage() {
     }));
   }
 
-  function updateCommentForm(trackId: string, patch: Partial<CommentFormState>) {
+  function updateCommentForm(
+    trackId: string,
+    patch: Partial<CommentFormState>
+  ) {
     setCommentForms((prev) => ({
       ...prev,
       [trackId]: {
@@ -373,31 +382,31 @@ export default function ProjectDetailsPage() {
           <div className="space-y-4">
             {project.tracks.map((track) => (
               <TrackCard
-              key={track.id}
-              track={track}
-              canEdit={canEdit}
-              versionName={versionForms[track.id]?.versionName || ""}
-              fileUrl={versionForms[track.id]?.fileUrl || ""}
-              commentText={commentForms[track.id]?.text || ""}
-              versionLoading={Boolean(versionLoadingMap[track.id])}
-              commentLoading={Boolean(commentLoadingMap[track.id])}
-              versionError={versionErrorMap[track.id] || ""}
-              commentError={commentErrorMap[track.id] || ""}
-              isVersionFormOpen={Boolean(openVersionForms[track.id])}
-              isCommentFormOpen={Boolean(openCommentForms[track.id])}
-              onToggleVersionForm={() => toggleVersionForm(track.id)}
-              onToggleCommentForm={() => toggleCommentForm(track.id)}
-              onVersionNameChange={(value) =>
-                updateVersionForm(track.id, { versionName: value })
-              }
-              onFileUrlChange={(value) =>
-                updateVersionForm(track.id, { fileUrl: value })
-              }
-              onCommentTextChange={(value) =>
-                updateCommentForm(track.id, { text: value })
-              }
-              onCreateVersion={() => handleCreateVersion(track.id)}
-              onCreateComment={() => handleCreateComment(track.id)}
+                key={track.id}
+                track={track}
+                canEdit={canEdit}
+                versionName={versionForms[track.id]?.versionName || ""}
+                fileUrl={versionForms[track.id]?.fileUrl || ""}
+                commentText={commentForms[track.id]?.text || ""}
+                versionLoading={Boolean(versionLoadingMap[track.id])}
+                commentLoading={Boolean(commentLoadingMap[track.id])}
+                versionError={versionErrorMap[track.id] || ""}
+                commentError={commentErrorMap[track.id] || ""}
+                isVersionFormOpen={Boolean(openVersionForms[track.id])}
+                isCommentFormOpen={Boolean(openCommentForms[track.id])}
+                onToggleVersionForm={() => toggleVersionForm(track.id)}
+                onToggleCommentForm={() => toggleCommentForm(track.id)}
+                onVersionNameChange={(value) =>
+                  updateVersionForm(track.id, { versionName: value })
+                }
+                onFileUrlChange={(value) =>
+                  updateVersionForm(track.id, { fileUrl: value })
+                }
+                onCommentTextChange={(value) =>
+                  updateCommentForm(track.id, { text: value })
+                }
+                onCreateVersion={() => handleCreateVersion(track.id)}
+                onCreateComment={() => handleCreateComment(track.id)}
               />
             ))}
           </div>

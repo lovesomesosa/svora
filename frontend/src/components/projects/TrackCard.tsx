@@ -24,11 +24,10 @@ type TrackCardProps = {
   isCommentFormOpen: boolean;
   onToggleVersionForm: () => void;
   onToggleCommentForm: () => void;
-  
 };
 
 export default function TrackCard({
- track,
+  track,
   canEdit,
   versionName,
   fileUrl,
@@ -47,7 +46,6 @@ export default function TrackCard({
   onCreateVersion,
   onCreateComment,
 }: TrackCardProps) {
-
   return (
     <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
