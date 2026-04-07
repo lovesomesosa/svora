@@ -20,10 +20,15 @@ type TrackCardProps = {
   onCommentTextChange: (value: string) => void;
   onCreateVersion: () => void;
   onCreateComment: () => void;
+  isVersionFormOpen: boolean;
+  isCommentFormOpen: boolean;
+  onToggleVersionForm: () => void;
+  onToggleCommentForm: () => void;
+  
 };
 
 export default function TrackCard({
-  track,
+ track,
   canEdit,
   versionName,
   fileUrl,
@@ -32,14 +37,16 @@ export default function TrackCard({
   commentLoading,
   versionError,
   commentError,
+  isVersionFormOpen,
+  isCommentFormOpen,
+  onToggleVersionForm,
+  onToggleCommentForm,
   onVersionNameChange,
   onFileUrlChange,
   onCommentTextChange,
   onCreateVersion,
   onCreateComment,
 }: TrackCardProps) {
-  const [isVersionFormOpen, setIsVersionFormOpen] = useState(false);
-  const [isCommentFormOpen, setIsCommentFormOpen] = useState(false);
 
   return (
     <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
@@ -58,14 +65,14 @@ export default function TrackCard({
       {canEdit ? (
         <div className="mt-4 flex flex-wrap gap-3">
           <button
-            onClick={() => setIsVersionFormOpen((prev) => !prev)}
+            onClick={onToggleVersionForm}
             className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
           >
             {isVersionFormOpen ? "Hide version form" : "Add version"}
           </button>
 
           <button
-            onClick={() => setIsCommentFormOpen((prev) => !prev)}
+            onClick={onToggleCommentForm}
             className="rounded-lg border border-neutral-700 px-3 py-2 text-sm hover:bg-neutral-800"
           >
             {isCommentFormOpen ? "Hide comment form" : "Add comment"}
