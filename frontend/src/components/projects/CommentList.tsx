@@ -27,7 +27,7 @@ export default function CommentList({ comments }: CommentListProps) {
 
 
       <div
-      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+      className={`overflow-hidden transition-all duration-700 ease-in-out ${
         isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
         }`}
         >
