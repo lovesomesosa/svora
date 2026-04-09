@@ -173,17 +173,19 @@ export default function ProjectsPage() {
               <Link
               key={project.id}
               href={`/projects/${project.id}`}
-              className="group max-w-sm overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition hover:border-neutral-700"
+              className="group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition-all duration-300 hover:-translate-y-1 hover:border-neutral-700 hover:shadow-lg hover:shadow-black/30"
               >
                 <img
                 src="/images/cover.png"
                 alt="cover"
-                className="aspect-square w-full object-cover transition group-hover:scale-[1.03]"
+                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.05]"
                 />
                 <div className="p-3">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-base font-medium">{project.title}</h2>
+                      <h2 className="text-base font-medium transition group-hover:text-white">
+                        {project.title}
+                        </h2>
                       <div className="mt-2 flex items-center gap-2 text-sm text-neutral-400">
                         <span>{project.type}</span>
                         <StatusBadge status={project.status} />
@@ -196,7 +198,7 @@ export default function ProjectsPage() {
                           </div>
                           <span className="text-xs text-neutral-500">
                             {new Date(project.createdAt).toLocaleDateString("ru-RU")}
-                            </span>
+                          </span>
                       </div>
                   </div>
               </Link>
