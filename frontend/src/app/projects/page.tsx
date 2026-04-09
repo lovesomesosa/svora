@@ -5,10 +5,21 @@ import Link from "next/link";
 import Protected from "@/components/Protected";
 import { useAuth } from "@/providers/AuthProvider";
 import { createProject, getAllProjects, getProjects } from "@/lib/projects";
-import type { CreateProjectPayload, Project, ProjectType } from "@/lib/types";
+import type {
+  CreateProjectPayload,
+  Project,
+  ProjectStatus,
+  ProjectType,
+} from "@/lib/types";
 import StatusBadge from "@/components/ui/StatusBadge";
 
 const projectTypes: ProjectType[] = ["SINGLE", "ALBUM"];
+const projectStatuses: ProjectStatus[] = [
+  "RECORDING",
+  "MIXING",
+  "MASTERING",
+  "COMPLETED",
+];
 
 export default function ProjectsPage() {
   const { token, user, loading: authLoading } = useAuth();
@@ -18,6 +29,9 @@ export default function ProjectsPage() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitError, setSubmitError] = useState("");
+
+  const [typeFilter, setTypeFilter] = useState<"ALL" | ProjectType>("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | ProjectStatus>("ALL");
 
   const [form, setForm] = useState<CreateProjectPayload>({
     title: "",
@@ -89,11 +103,81 @@ export default function ProjectsPage() {
     }
   }, [authLoading, loadProjects]);
 
+  const filteredProjects = projects.filter((project) => {
+  const matchesType = typeFilter === "ALL" || project.type === typeFilter;
+  const matchesStatus =
+    statusFilter === "ALL" || project.status === statusFilter;
+
+  return matchesType && matchesStatus;
+});
+
+   const hasActiveFilters = typeFilter !== "ALL" || statusFilter !== "ALL";
+
   return (
     <Protected>
       <section className="space-y-6">
         <div>
           <h1 className="text-3xl font-semibold">Projects</h1>
+          
+          <div className="mt-2 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div className="flex flex-col gap-3 md:flex-row md:items-end">
+                <div className="min-w-[180px]">
+                  <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-neutral-500">
+                    Type
+                  </label>
+                  <select
+                  value={typeFilter}
+                  onChange={(event) =>
+                    setTypeFilter(event.target.value as "ALL" | ProjectType)
+                  }
+                  className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm outline-none transition focus:border-neutral-500"
+                  >
+                    <option value="ALL">All types</option>
+                    {projectTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+              </div>
+
+      <div className="min-w-[200px]">
+        <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-neutral-500">
+          Status
+        </label>
+        <select
+          value={statusFilter}
+          onChange={(event) =>
+            setStatusFilter(event.target.value as "ALL" | ProjectStatus)
+          }
+          className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm outline-none transition focus:border-neutral-500"
+        >
+          <option value="ALL">All statuses</option>
+          {projectStatuses.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    {hasActiveFilters ? (
+      <button
+        type="button"
+        onClick={() => {
+          setTypeFilter("ALL");
+          setStatusFilter("ALL");
+        }}
+        className="rounded-xl border border-neutral-700 px-4 py-3 text-sm text-neutral-300 transition hover:bg-neutral-800"
+      >
+        Reset filters
+      </button>
+    ) : null}
+  </div>
+</div>
+          
           <p className="mt-2 text-neutral-400">
             {user?.role === "OWNER"
               ? "Все проекты студии"
@@ -163,13 +247,13 @@ export default function ProjectsPage() {
           <div className="rounded-2xl border border-red-900 bg-red-950/30 p-4 text-red-300">
             {error}
           </div>
-        ) : projects.length === 0 ? (
+        ) : filteredProjects.length === 0 ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-400">
-            Проектов пока нет.
+            Ничего не найдено по выбранным фильтрам.
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <Link
               key={project.id}
               href={`/projects/${project.id}`}
