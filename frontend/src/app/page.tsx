@@ -494,13 +494,6 @@ export default function HomePage() {
             >
               Перейти к бронированию
             </Link>
-
-            <Link
-              href="/dashboard"
-              className="rounded-xl border border-neutral-700 px-5 py-3 text-sm text-neutral-200 transition hover:bg-neutral-800"
-            >
-              Открыть dashboard
-            </Link>
           </div>
         </div>
     </div>
