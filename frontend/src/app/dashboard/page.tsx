@@ -170,7 +170,7 @@ export default function DashboardPage() {
           },
           {
             title: "Готовые проекты",
-            value: 3, //String(dashboardStats.completedProjects),
+            value: "3", //String(dashboardStats.completedProjects),
             description:
               "Проекты, дошедшие до финального статуса и завершённые в производстве.",
           },
@@ -214,7 +214,7 @@ export default function DashboardPage() {
           },
           {
             title: "Готовые проекты",
-            value: 3, //String(dashboardStats.completedProjects),
+            value: "3", //String(dashboardStats.completedProjects),
             description:
               "Материал, который уже доведён до финального состояния.",
           },

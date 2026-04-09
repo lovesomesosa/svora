@@ -117,8 +117,64 @@ export default function ProjectsPage() {
     <Protected>
       <section className="space-y-6">
         <div>
-          <h1 className="text-3xl font-semibold">Projects</h1>
-          
+           <h1 className="text-3xl font-semibold">Projects</h1>
+
+           {user?.role === "CLIENT" ? (
+          <div className="mt-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
+            <h2 className="text-xl font-semibold">Создать проект</h2>
+
+            <form
+              onSubmit={handleCreateProject}
+              className="mt-4 grid gap-4 md:grid-cols-2"
+            >
+              <input
+                type="text"
+                value={form.title}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    title: event.target.value,
+                  }))
+                }
+                placeholder="Название проекта"
+                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 outline-none"
+                required
+              />
+
+              <select
+                value={form.type}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    type: event.target.value as ProjectType,
+                  }))
+                }
+                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
+              >
+                {projectTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+
+              <div className="md:col-span-2">
+                {submitError ? (
+                  <p className="mb-3 text-sm text-red-400">{submitError}</p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  disabled={submitLoading}
+                  className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {submitLoading ? "Создаём..." : "Создать проект"}
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : null}
+
           <div className="mt-2 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div className="flex flex-col gap-3 md:flex-row md:items-end">
@@ -185,61 +241,6 @@ export default function ProjectsPage() {
           </p>
         </div>
 
-        {user?.role === "CLIENT" ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-            <h2 className="text-xl font-semibold">Создать проект</h2>
-
-            <form
-              onSubmit={handleCreateProject}
-              className="mt-4 grid gap-4 md:grid-cols-2"
-            >
-              <input
-                type="text"
-                value={form.title}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    title: event.target.value,
-                  }))
-                }
-                placeholder="Название проекта"
-                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 outline-none"
-                required
-              />
-
-              <select
-                value={form.type}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    type: event.target.value as ProjectType,
-                  }))
-                }
-                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
-              >
-                {projectTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-
-              <div className="md:col-span-2">
-                {submitError ? (
-                  <p className="mb-3 text-sm text-red-400">{submitError}</p>
-                ) : null}
-
-                <button
-                  type="submit"
-                  disabled={submitLoading}
-                  className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
-                >
-                  {submitLoading ? "Создаём..." : "Создать проект"}
-                </button>
-              </div>
-            </form>
-          </div>
-        ) : null}
 
         {loading ? (
           <p className="text-neutral-400">Загрузка проектов...</p>
