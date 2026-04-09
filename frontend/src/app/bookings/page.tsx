@@ -506,39 +506,39 @@ export default function BookingsPage() {
               </div>
 
               <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-  <div className="text-sm text-neutral-300">
-    Выбранная дата:{" "}
-    <span className="font-medium text-white">{form.date}</span>
-  </div>
+                <div className="text-sm text-neutral-300">
+                  Выбранная дата:{" "}
+                  <span className="font-medium text-white">{form.date}</span>
+                  </div>
 
-  <div className="mt-2 text-sm text-neutral-300">
-    Начало:{" "}
-    <span className="font-medium text-white">
-      {form.startTime || "не выбрано"}
-    </span>
-  </div>
-
-  <div className="mt-1 text-sm text-neutral-300">
-    Конец:{" "}
-    <span className="font-medium text-white">
-      {form.endTime || "не выбрано"}
-    </span>
-  </div>
-
-  {bookingDurationHours > 0 ? (
-    <div className="mt-1 text-sm text-neutral-300">
-      Длительность:{" "}
-      <span className="font-medium text-white">
-        {bookingDurationHours} ч.
-      </span>
-    </div>
-  ) : null}
-
-  <p className="mt-3 text-xs text-neutral-500">
-    Первый клик выбирает начало, второй — конец диапазона.
-    Можно выбрать только свободные часы подряд.
-  </p>
-</div>
+                  <div className="mt-2 text-sm text-neutral-300">
+                    Начало:{" "}
+                    <span className="font-medium text-white">
+                      {form.startTime || "не выбрано"}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-1 text-sm text-neutral-300">
+                    Конец:{" "}
+                    <span className="font-medium text-white">
+                      {form.endTime || "не выбрано"}
+                      </span>
+                      </div>
+                      {bookingDurationHours > 0 ? (
+                        
+                        <div className="mt-1 text-sm text-neutral-300">
+                          Длительность:{" "}
+                          <span className="font-medium text-white">
+                            {bookingDurationHours} ч.
+                          </span>
+                        </div>
+                      ) : null}
+                      
+                      <p className="mt-3 text-xs text-neutral-500">
+                        Первый клик выбирает начало, второй — конец диапазона.
+                        Можно выбрать только свободные часы подряд.
+                      </p>
+                    </div>
 
               {submitError ? (
                 <p className="text-sm text-red-400">{submitError}</p>
