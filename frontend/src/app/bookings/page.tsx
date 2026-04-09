@@ -74,7 +74,7 @@ export default function BookingsPage() {
     {},
   );
   
-  const upcomingDates = useMemo(() => getUpcomingDates(14), []);
+  const upcomingDates = useMemo(() => getUpcomingDates(11), []);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [slots, setSlots] = useState<string[]>([]);
@@ -323,6 +323,21 @@ export default function BookingsPage() {
     return allDaySlots.slice(startIndex, endExclusiveIndex);
   }, [form.startTime, form.endTime]);
 
+  const bookingDurationHours = useMemo(() => {
+  if (!form.startTime || !form.endTime) {
+    return 0;
+  }
+
+  const startIndex = getSlotIndex(form.startTime);
+  const endIndex = getSlotIndex(form.endTime);
+
+  if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
+    return 0;
+  }
+
+  return endIndex - startIndex;
+}, [form.startTime, form.endTime]);
+
   return (
     <Protected>
       <section className="space-y-8">
@@ -411,6 +426,7 @@ export default function BookingsPage() {
                     const isAvailable = slots.includes(slot);
                     const isSelectedStart = form.startTime === slot;
                     const isInsideSelectedRange = selectedRange.includes(slot);
+                    const isSelectedEnd = form.endTime && getNextSlot(slot) === form.endTime;
 
                     return (
                       <button
@@ -419,11 +435,15 @@ export default function BookingsPage() {
                         onClick={() => handleSlotClick(slot)}
                         disabled={!isAvailable}
                         className={`rounded-lg border px-2 py-1.5 text-xs transition ${
-                          isSelectedStart || isInsideSelectedRange
-                            ? "border-green-400 bg-green-500/20 text-green-200"
-                            : isAvailable
-                              ? "border-green-500/30 bg-green-500/10 text-green-300 hover:bg-green-500/15"
-                              : "cursor-not-allowed border-neutral-700 bg-neutral-800/60 text-neutral-400"
+                          isSelectedStart
+                          ? "border-green-300 bg-green-400/30 text-white ring-1 ring-green-300/40"
+                          : isSelectedEnd
+                          ? "border-green-300 bg-green-400/25 text-white ring-1 ring-green-300/30"
+                          : isInsideSelectedRange
+                          ? "border-green-500/30 bg-green-500/15 text-green-200"
+                          : isAvailable
+                          ? "border-green-500/20 bg-green-500/5 text-green-300 hover:bg-green-500/10"
+                          : "cursor-not-allowed border-neutral-700 bg-neutral-800/60 text-neutral-400"
                         }`}
                       >
                         {slot}
@@ -503,12 +523,20 @@ export default function BookingsPage() {
                   <span className="font-medium text-white">
                     {form.endTime || "не выбрано"}
                   </span>
+                  {bookingDurationHours > 0 ? (
+                    <p className="mt-1 text-sm text-neutral-300">
+                      Длительность:{" "}
+                      <span className="font-medium text-white">
+                        {bookingDurationHours - 1} ч.
+                        {/* Фактическое бронирование на час меньше, так как конечный слот — это время окончания, а не последний занятый час */}
+                      </span>
+                    </p>
+                      ) : null}
                 </p>
-
-                <p className="mt-3 text-xs text-neutral-500">
-                  Выбери время прямо в блоке доступности выше: первый клик —
-                  начало, второй — конец.
-                </p>
+                
+                <p className="mt-3 text-xs text-neutral-500">Первый клик выбирает начало, второй — конец диапазона.
+                  Можно выбрать только свободные часы подряд.
+                  </p>
               </div>
 
               {submitError ? (
