@@ -10,6 +10,7 @@ import { createTrack } from "@/lib/tracks";
 import { createVersion } from "@/lib/versions";
 import { createComment } from "@/lib/comments";
 import type { ProjectDetailsResponse } from "@/lib/types";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 type VersionFormState = {
   versionName: string;
@@ -320,15 +321,23 @@ export default function ProjectDetailsPage() {
   return (
     <Protected>
       <div className="space-y-6">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-          <h1 className="text-3xl font-semibold">{project.title}</h1>
-          <p className="mt-2 text-sm text-neutral-400">
-            {project.type} • {project.status}
-          </p>
-          <p className="mt-1 text-xs text-neutral-500">
-            Created: {new Date(project.createdAt).toLocaleString("ru-RU")}
-          </p>
-        </div>
+        <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900">
+          <img
+          src="/images/line_cover.png"
+          alt="cover"
+          className="aspect-square w-full max-h-[220px] object-cover transition group-hover:scale-[1.03]"
+          />
+          <div className="p-6">
+            <h1 className="text-3xl font-semibold">{project.title}</h1>
+            <div className="mt-2 flex items-center gap-2 text-sm text-neutral-400">
+              <span>{project.type}</span>
+              <StatusBadge status={project.status} />
+            </div>
+              <p className="mt-1 text-xs text-neutral-500">
+                Created: {new Date(project.createdAt).toLocaleString("ru-RU")}
+                </p>
+            </div>
+          </div>
 
         {canEdit ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">

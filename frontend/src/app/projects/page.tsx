@@ -6,6 +6,7 @@ import Protected from "@/components/Protected";
 import { useAuth } from "@/providers/AuthProvider";
 import { createProject, getAllProjects, getProjects } from "@/lib/projects";
 import type { CreateProjectPayload, Project, ProjectType } from "@/lib/types";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 const projectTypes: ProjectType[] = ["SINGLE", "ALBUM"];
 
@@ -167,33 +168,37 @@ export default function ProjectsPage() {
             Проектов пока нет.
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {projects.map((project) => (
               <Link
-                key={project.id}
-                href={`/projects/${project.id}`}
-                className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 transition hover:border-neutral-700"
+              key={project.id}
+              href={`/projects/${project.id}`}
+              className="group max-w-sm overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 transition hover:border-neutral-700"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-medium">{project.title}</h2>
-                    <p className="mt-2 text-sm text-neutral-400">
-                      {project.type} • {project.status}
-                    </p>
-                    <p className="mt-2 text-xs text-neutral-500">
-                      userId: {project.userId}
-                    </p>
-                    {project.user ? (
-                      <p className="mt-2 text-xs text-neutral-500">
-                        Автор: {project.user.name}
-                      </p>
-                    ) : null}
+                <img
+                src="/images/cover.png"
+                alt="cover"
+                className="aspect-square w-full object-cover transition group-hover:scale-[1.03]"
+                />
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-base font-medium">{project.title}</h2>
+                      <div className="mt-2 flex items-center gap-2 text-sm text-neutral-400">
+                        <span>{project.type}</span>
+                        <StatusBadge status={project.status} />
+                        </div>
+                        {project.user ? (
+                          <p className="mt-2 text-xs text-neutral-500">
+                            Автор: {project.user.name}
+                            </p>
+                          ) : null}
+                          </div>
+                          <span className="text-xs text-neutral-500">
+                            {new Date(project.createdAt).toLocaleDateString("ru-RU")}
+                            </span>
+                      </div>
                   </div>
-
-                  <span className="text-xs text-neutral-500">
-                    {new Date(project.createdAt).toLocaleDateString("ru-RU")}
-                  </span>
-                </div>
               </Link>
             ))}
           </div>
