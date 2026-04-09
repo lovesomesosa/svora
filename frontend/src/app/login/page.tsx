@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import type { LoginResponse } from "@/lib/types";
 import { useAuth } from "@/providers/AuthProvider";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -88,6 +89,16 @@ export default function LoginPage() {
           {loading ? "Входим..." : "Войти"}
         </button>
       </form>
+      <div className="mt-6 text-center text-sm text-neutral-400">
+        Нет аккаунта?{" "}
+        <Link
+        href="/register"
+        className="text-white underline underline-offset-4 hover:opacity-80"
+        >
+          Зарегистрироваться
+          </Link>
+      </div>
     </div>
+
   );
 }

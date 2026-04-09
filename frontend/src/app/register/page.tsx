@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { useAuth } from "@/providers/AuthProvider";
+import Link from "next/dist/client/link";
 
 type RegisterResponse = {
   id: string;
@@ -122,6 +123,15 @@ export default function RegisterPage() {
           {loading ? "Создаём..." : "Создать аккаунт"}
         </button>
       </form>
+      <div className="mt-6 text-center text-sm text-neutral-400">
+        Уже работаешь на студии?{" "}
+        <Link
+        href="/login"
+        className="text-white underline underline-offset-4 hover:opacity-80"
+        >
+          Авторизоваться
+          </Link>
+      </div>
     </div>
   );
 }
