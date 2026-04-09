@@ -25,9 +25,29 @@ const bookingStatuses: BookingStatus[] = [
   "CANCELLED",
 ];
 
+
+
 function getTodayDate() {
   return new Date().toISOString().split("T")[0];
 }
+
+function formatDate(date: Date) {
+  return date.toISOString().split("T")[0];
+}
+function addDays(base: Date, days: number) {
+  const next = new Date(base);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+function getUpcomingDates(daysCount: number) {
+  const today = new Date();
+
+  return Array.from({ length: daysCount }, (_, index) =>
+    formatDate(addDays(today, index)),
+  );
+}
+
+
 
 const allDaySlots = Array.from({ length: 24 }, (_, index) =>
   `${String(index).padStart(2, "0")}:00`,
@@ -49,6 +69,12 @@ function getNextSlot(slot: string) {
 
 export default function BookingsPage() {
   const { token, user, loading: authLoading } = useAuth();
+
+  const [dayAvailability, setDayAvailability] = useState<Record<string, number>>(
+    {},
+  );
+  
+  const upcomingDates = useMemo(() => getUpcomingDates(14), []);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [slots, setSlots] = useState<string[]>([]);
@@ -109,6 +135,29 @@ export default function BookingsPage() {
     },
     [token],
   );
+
+  const loadUpcomingAvailability = useCallback(async () => {
+  if (!token) {
+    return;
+  }
+
+  try {
+    const results = await Promise.all(
+      upcomingDates.map(async (date) => {
+        try {
+          const available = await getAvailableSlots(token, date);
+          return [date, available.length] as const;
+        } catch {
+          return [date, 0] as const;
+        }
+      }),
+    );
+
+    setDayAvailability(Object.fromEntries(results));
+  } catch {
+    setDayAvailability({});
+  }
+}, [token, upcomingDates]);
 
   async function handleStatusChange(bookingId: string, status: BookingStatus) {
     if (!token) {
@@ -229,6 +278,7 @@ export default function BookingsPage() {
       resetTimeSelection(form.date);
       await loadBookings();
       await loadSlots(form.date);
+      await loadUpcomingAvailability();
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Не удалось создать бронирование",
@@ -237,6 +287,10 @@ export default function BookingsPage() {
       setSubmitLoading(false);
     }
   }
+
+  useEffect(() => {
+    void loadUpcomingAvailability();
+  }, [loadUpcomingAvailability]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -281,43 +335,59 @@ export default function BookingsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="min-w-[200px]">
-              <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-neutral-500">
-                Status
-              </label>
+  <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+  <div className="flex items-center justify-between">
+    <h2 className="text-sm font-medium text-neutral-300">
+      Ближайшие даты
+    </h2>
+  </div>
 
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(event.target.value as "ALL" | BookingStatus)
-                }
-                className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm"
-              >
-                <option value="ALL">All statuses</option>
-                {bookingStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
+  <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+    {upcomingDates.map((date) => {
+      const availableCount = dayAvailability[date] ?? 0;
+      const isSelected = selectedDate === date;
+      const hasAvailability = availableCount > 0;
 
-            {hasActiveFilters ? (
-              <button
-                type="button"
-                onClick={() => setStatusFilter("ALL")}
-                className="rounded-xl border border-neutral-700 px-4 py-3 text-sm text-neutral-300 transition hover:bg-neutral-800"
-              >
-                Reset filters
-              </button>
-            ) : null}
-          </div>
-        </div>
+      return (
+        <button
+          key={date}
+          onClick={() => handleDateChange(date)}
+          className={`min-w-[90px] shrink-0 rounded-xl border px-3 py-2 text-left transition ${
+            isSelected
+              ? "border-green-400 bg-green-500/15"
+              : hasAvailability
+                ? "border-green-500/20 bg-green-500/5 hover:bg-green-500/10"
+                : "border-neutral-800 bg-neutral-950 hover:bg-neutral-900"
+          }`}
+        >
+          <p className="text-[10px] uppercase text-neutral-500">
+            {new Date(date).toLocaleDateString("ru-RU", {
+              weekday: "short",
+            })}
+          </p>
+
+          <p className="text-sm font-medium">
+            {new Date(date).toLocaleDateString("ru-RU", {
+              day: "2-digit",
+              month: "2-digit",
+            })}
+          </p>
+
+          <p
+            className={`text-[10px] ${
+              hasAvailability ? "text-green-300" : "text-neutral-500"
+            }`}
+          >
+            {availableCount > 0 ? `${availableCount}` : "—"}
+          </p>
+        </button>
+      );
+    })}
+  </div>
+</div>
 
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-          <h2 className="text-xl font-semibold">Доступность</h2>
+          <h2 className="text-base font-semibold">Доступность</h2>
 
           <div className="mt-4 space-y-4">
             <input
@@ -330,12 +400,13 @@ export default function BookingsPage() {
             {slotsLoading ? (
               <p className="text-sm text-neutral-400">Загрузка слотов...</p>
             ) : (
+              
               <div className="space-y-4">
                 <p className="text-sm font-medium text-neutral-300">
                   Доступность на {selectedDate}
                 </p>
 
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+                <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
                   {allDaySlots.map((slot) => {
                     const isAvailable = slots.includes(slot);
                     const isSelectedStart = form.startTime === slot;
@@ -347,7 +418,7 @@ export default function BookingsPage() {
                         type="button"
                         onClick={() => handleSlotClick(slot)}
                         disabled={!isAvailable}
-                        className={`rounded-xl border px-3 py-2 text-sm transition ${
+                        className={`rounded-lg border px-2 py-1.5 text-xs transition ${
                           isSelectedStart || isInsideSelectedRange
                             ? "border-green-400 bg-green-500/20 text-green-200"
                             : isAvailable
@@ -383,7 +454,7 @@ export default function BookingsPage() {
         </div>
 
         {user?.role === "CLIENT" ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
             <h2 className="text-xl font-semibold">Создать бронирование</h2>
 
             <form onSubmit={handleCreateBooking} className="mt-4 space-y-4">
@@ -454,6 +525,41 @@ export default function BookingsPage() {
             </form>
           </div>
         ) : null}
+
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div className="min-w-[200px]">
+              <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-neutral-500">
+                Filter (STATUS)
+              </label>
+
+              <select
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(event.target.value as "ALL" | BookingStatus)
+                }
+                className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm"
+              >
+                <option value="ALL">All statuses</option>
+                {bookingStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {hasActiveFilters ? (
+              <button
+                type="button"
+                onClick={() => setStatusFilter("ALL")}
+                className="rounded-xl border border-neutral-700 px-4 py-3 text-sm text-neutral-300 transition hover:bg-neutral-800"
+              >
+                Reset filters
+              </button>
+            ) : null}
+          </div>
+        </div>
 
         {loading ? (
           <p className="text-neutral-400">Загрузка бронирований...</p>
