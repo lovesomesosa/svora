@@ -66,7 +66,7 @@ export async function getAvailableSlots(token: string, date: string) {
 
 export async function getPublicAvailableSlots(date: string) {
   const response = await apiRequest<AvailableSlotsResponse>(
-    `/api/bookings/available?date=${date}`,
+    `/api/public/bookings/available?date=${date}`,
     {
       method: "GET"
     }

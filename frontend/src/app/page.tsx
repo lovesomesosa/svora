@@ -264,29 +264,6 @@ export default function HomePage() {
             Управляй бронированиями, проектами, треками, версиями и обратной
             связью в одном пространстве. От первой записи до готового релиза.
           </p>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/bookings"
-              className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90"
-            >
-              Book a session
-            </Link>
-
-            <Link
-              href="/login"
-              className="rounded-xl border border-neutral-700 px-5 py-3 text-sm text-neutral-200 transition hover:bg-neutral-800"
-            >
-              Login
-            </Link>
-
-            <Link
-              href="/register"
-              className="rounded-xl border border-neutral-700 px-5 py-3 text-sm text-neutral-200 transition hover:bg-neutral-800"
-            >
-              Register
-            </Link>
-          </div>
         </div>
       </div>
 
@@ -501,30 +478,8 @@ export default function HomePage() {
           </div>
         </>
       )}
-    </div>
-
-    <div className="mt-5 flex flex-wrap gap-3">
-      <Link
-        href="/login"
-        className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90"
-      >
-        Login to book
-      </Link>
-
-      <Link
-        href="/register"
-        className="rounded-xl border border-neutral-700 px-5 py-3 text-sm text-neutral-200 transition hover:bg-neutral-800"
-      >
-        Create account
-      </Link>
-    </div>
-  </div>
-</div>
-
-
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-        <div className="max-w-2xl space-y-3">
-          <h2 className="text-2xl font-semibold">
+      <div className="max-w-2xl space-y-3">
+          <h2 className="mt-4 text-2xl font-semibold">
             Готов начать новый проект со студией?
           </h2>
           <p className="text-sm text-neutral-500">
@@ -548,7 +503,10 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </div>
+    </div>
+  </div>
+</div>
+
     </section>
   );
 }
