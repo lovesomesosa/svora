@@ -227,11 +227,15 @@ export const updateBookingStatus = async (
   return serializeBooking(updated);
 };
 
-export const getAvailableSlots = async (date: string) => {
+export const getAvailableSlots = async (
+  date: string,
+): Promise<{ date: string; availableSlots: string[] }> => {
   const bookingDate = normalizeDateOnly(date);
-  const now = new Date();
 
-  if (bookingDate < new Date(now.setHours(0, 0, 0, 0))) {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  if (bookingDate < todayStart) {
     return {
       date,
       availableSlots: [],
@@ -273,10 +277,7 @@ export const getAvailableSlots = async (date: string) => {
 
   let availableSlots = slots.filter((slot) => !busySlots.includes(slot));
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  if (bookingDate.getTime() === today.getTime()) {
+  if (bookingDate.getTime() === todayStart.getTime()) {
     const current = new Date();
 
     availableSlots = availableSlots.filter((slot) => {
