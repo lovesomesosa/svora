@@ -3,11 +3,22 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
+  function getNavLinkClass(href: string) {
+  const isActive = pathname === href;
+
+  return `rounded-lg px-3 py-2 text-sm transition-all duration-200 ${
+    isActive
+      ? "bg-neutral-800 text-white"
+      : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
+  }`;
+}
   function handleLogout() {
     logout();
     router.push("/login");
@@ -16,16 +27,24 @@ export default function Header() {
   return (
     <header className="border-b border-neutral-800">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold">
+        <Link href="/" className="rounded-lg px-3 py-2 text-lg font-semibold transition-all duration-200 hover:bg-neutral-800 hover:text-white">
           Svora Manager
         </Link>
 
         <div className="flex items-center gap-4">
-          <nav className="flex items-center gap-4 text-sm text-neutral-300">
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/bookings">Bookings</Link>
-            <Link href="/projects">Projects</Link>
-          </nav>
+          <nav className="flex items-center gap-2">
+  <Link href="/dashboard" className={getNavLinkClass("/dashboard")}>
+  Dashboard
+</Link>
+
+<Link href="/bookings" className={getNavLinkClass("/bookings")}>
+  Bookings
+</Link>
+
+<Link href="/projects" className={getNavLinkClass("/projects")}>
+  Projects
+</Link>
+</nav>
 
           {user ? (
             <div className="flex items-center gap-3">
