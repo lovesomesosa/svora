@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Protected from "@/components/Protected";
 import { useAuth } from "@/providers/AuthProvider";
 import {
@@ -10,6 +10,7 @@ import {
   getClientBookings,
   updateBookingStatus,
 } from "@/lib/bookings";
+import StatusBadge from "@/components/ui/StatusBadge";
 import type {
   Booking,
   BookingStatus,
@@ -18,33 +19,55 @@ import type {
 } from "@/lib/types";
 
 const serviceOptions: ServiceType[] = ["RECORDING", "MIXING", "MASTERING"];
+const bookingStatuses: BookingStatus[] = [
+  "PENDING",
+  "CONFIRMED",
+  "CANCELLED",
+];
+
+function getTodayDate() {
+  return new Date().toISOString().split("T")[0];
+}
+
+const allDaySlots = Array.from({ length: 24 }, (_, index) =>
+  `${String(index).padStart(2, "0")}:00`,
+);
+
+function getSlotIndex(slot: string) {
+  return allDaySlots.indexOf(slot);
+}
+
+function getNextSlot(slot: string) {
+  const index = getSlotIndex(slot);
+
+  if (index === -1 || index === allDaySlots.length - 1) {
+    return null;
+  }
+
+  return allDaySlots[index + 1];
+}
 
 export default function BookingsPage() {
   const { token, user, loading: authLoading } = useAuth();
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [slots, setSlots] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState("2026-03-31");
+  const [selectedDate, setSelectedDate] = useState(getTodayDate());
+
   const [loading, setLoading] = useState(true);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
 
+  const [statusFilter, setStatusFilter] = useState<"ALL" | BookingStatus>("ALL");
+
   const [form, setForm] = useState<CreateBookingPayload>({
-    date: "2026-03-31",
+    date: getTodayDate(),
     startTime: "",
     endTime: "",
     serviceType: "RECORDING",
   });
-
-  const availableEndTimes = useMemo(() => {
-    if (!form.startTime) {
-      return [];
-    }
-
-    return slots.filter((slot) => slot > form.startTime);
-  }, [slots, form.startTime]);
 
   const loadBookings = useCallback(async () => {
     if (!token || !user) {
@@ -84,7 +107,7 @@ export default function BookingsPage() {
         setSlotsLoading(false);
       }
     },
-    [token]
+    [token],
   );
 
   async function handleStatusChange(bookingId: string, status: BookingStatus) {
@@ -100,6 +123,85 @@ export default function BookingsPage() {
     }
   }
 
+  function resetTimeSelection(date: string) {
+    setForm((prev) => ({
+      ...prev,
+      date,
+      startTime: "",
+      endTime: "",
+    }));
+    setSubmitError("");
+  }
+
+  function handleDateChange(date: string) {
+    setSelectedDate(date);
+    resetTimeSelection(date);
+  }
+
+  function handleSlotClick(slot: string) {
+    const isAvailable = slots.includes(slot);
+
+    if (!isAvailable) {
+      return;
+    }
+
+    const { startTime, endTime } = form;
+
+    if (!startTime || (startTime && endTime)) {
+      setForm((prev) => ({
+        ...prev,
+        date: selectedDate,
+        startTime: slot,
+        endTime: "",
+      }));
+      setSubmitError("");
+      return;
+    }
+
+    if (slot === startTime) {
+      setForm((prev) => ({
+        ...prev,
+        endTime: "",
+      }));
+      return;
+    }
+
+    const startIndex = getSlotIndex(startTime);
+    const clickedIndex = getSlotIndex(slot);
+
+    if (clickedIndex < startIndex) {
+      setForm((prev) => ({
+        ...prev,
+        startTime: slot,
+        endTime: "",
+      }));
+      return;
+    }
+
+    const range = allDaySlots.slice(startIndex, clickedIndex + 1);
+    const isRangeFullyAvailable = range.every((rangeSlot) =>
+      slots.includes(rangeSlot),
+    );
+
+    if (!isRangeFullyAvailable) {
+      setSubmitError("Нельзя выбрать диапазон с занятыми часами");
+      return;
+    }
+
+    const nextSlot = getNextSlot(slot);
+
+    if (!nextSlot) {
+      setSubmitError("Нельзя завершить бронирование в конце суток");
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      endTime: nextSlot,
+    }));
+    setSubmitError("");
+  }
+
   async function handleCreateBooking(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -110,7 +212,7 @@ export default function BookingsPage() {
     setSubmitError("");
 
     if (!form.date || !form.startTime || !form.endTime || !form.serviceType) {
-      setSubmitError("Заполни все поля бронирования");
+      setSubmitError("Выбери дату, услугу и диапазон времени");
       return;
     }
 
@@ -124,17 +226,12 @@ export default function BookingsPage() {
 
       await createBooking(token, form);
 
-      setForm((prev) => ({
-        ...prev,
-        startTime: "",
-        endTime: "",
-      }));
-
+      resetTimeSelection(form.date);
       await loadBookings();
       await loadSlots(form.date);
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Не удалось создать бронирование"
+        err instanceof Error ? err.message : "Не удалось создать бронирование",
       );
     } finally {
       setSubmitLoading(false);
@@ -151,14 +248,26 @@ export default function BookingsPage() {
     void loadSlots(selectedDate);
   }, [selectedDate, loadSlots]);
 
-  useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      date: selectedDate,
-      startTime: "",
-      endTime: "",
-    }));
-  }, [selectedDate]);
+  const filteredBookings = bookings.filter((booking) => {
+    return statusFilter === "ALL" || booking.status === statusFilter;
+  });
+
+  const hasActiveFilters = statusFilter !== "ALL";
+
+  const selectedRange = useMemo(() => {
+    if (!form.startTime || !form.endTime) {
+      return [];
+    }
+
+    const startIndex = getSlotIndex(form.startTime);
+    const endExclusiveIndex = getSlotIndex(form.endTime);
+
+    if (startIndex === -1 || endExclusiveIndex === -1) {
+      return [];
+    }
+
+    return allDaySlots.slice(startIndex, endExclusiveIndex);
+  }, [form.startTime, form.endTime]);
 
   return (
     <Protected>
@@ -172,35 +281,102 @@ export default function BookingsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-          <h2 className="text-xl font-semibold">Свободные слоты</h2>
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div className="min-w-[200px]">
+              <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-neutral-500">
+                Status
+              </label>
 
-          <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center">
+              <select
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(event.target.value as "ALL" | BookingStatus)
+                }
+                className="w-full rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 text-sm"
+              >
+                <option value="ALL">All statuses</option>
+                {bookingStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {hasActiveFilters ? (
+              <button
+                type="button"
+                onClick={() => setStatusFilter("ALL")}
+                className="rounded-xl border border-neutral-700 px-4 py-3 text-sm text-neutral-300 transition hover:bg-neutral-800"
+              >
+                Reset filters
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
+          <h2 className="text-xl font-semibold">Доступность</h2>
+
+          <div className="mt-4 space-y-4">
             <input
               type="date"
               value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value)}
+              onChange={(event) => handleDateChange(event.target.value)}
               className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
             />
 
             {slotsLoading ? (
               <p className="text-sm text-neutral-400">Загрузка слотов...</p>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {slots.length > 0 ? (
-                  slots.map((slot) => (
-                    <span
-                      key={slot}
-                      className="rounded-full border border-neutral-700 px-3 py-1 text-sm text-neutral-300"
-                    >
-                      {slot}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-sm text-neutral-500">
-                    Нет доступных слотов
-                  </span>
-                )}
+              <div className="space-y-4">
+                <p className="text-sm font-medium text-neutral-300">
+                  Доступность на {selectedDate}
+                </p>
+
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+                  {allDaySlots.map((slot) => {
+                    const isAvailable = slots.includes(slot);
+                    const isSelectedStart = form.startTime === slot;
+                    const isInsideSelectedRange = selectedRange.includes(slot);
+
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => handleSlotClick(slot)}
+                        disabled={!isAvailable}
+                        className={`rounded-xl border px-3 py-2 text-sm transition ${
+                          isSelectedStart || isInsideSelectedRange
+                            ? "border-green-400 bg-green-500/20 text-green-200"
+                            : isAvailable
+                              ? "border-green-500/30 bg-green-500/10 text-green-300 hover:bg-green-500/15"
+                              : "cursor-not-allowed border-neutral-700 bg-neutral-800/60 text-neutral-400"
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-wrap gap-4 text-xs text-neutral-500">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-green-500/20 ring-1 ring-green-500/30" />
+                    <span>Свободно</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-green-500/30 ring-1 ring-green-400/40" />
+                    <span>Выбрано</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-neutral-700" />
+                    <span>Недоступно / не выдано API</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -210,92 +386,71 @@ export default function BookingsPage() {
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
             <h2 className="text-xl font-semibold">Создать бронирование</h2>
 
-            <form
-              onSubmit={handleCreateBooking}
-              className="mt-4 grid gap-4 md:grid-cols-2"
-            >
-              <input
-                type="date"
-                value={form.date}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    date: event.target.value,
-                  }))
-                }
-                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
-                required
-              />
+            <form onSubmit={handleCreateBooking} className="mt-4 space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <input
+                  type="date"
+                  value={form.date}
+                  onChange={(event) => handleDateChange(event.target.value)}
+                  className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
+                  required
+                />
 
-              <select
-                value={form.serviceType}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    serviceType: event.target.value as ServiceType,
-                  }))
-                }
-                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
-              >
-                {serviceOptions.map((service) => (
-                  <option key={service} value={service}>
-                    {service}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={form.startTime}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    startTime: event.target.value,
-                    endTime: "",
-                  }))
-                }
-                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
-                required
-              >
-                <option value="">Выбери время начала</option>
-                {slots.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={form.endTime}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    endTime: event.target.value,
-                  }))
-                }
-                className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
-                required
-              >
-                <option value="">Выбери время окончания</option>
-                {availableEndTimes.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
-
-              <div className="md:col-span-2">
-                {submitError ? (
-                  <p className="mb-3 text-sm text-red-400">{submitError}</p>
-                ) : null}
-
-                <button
-                  type="submit"
-                  disabled={submitLoading}
-                  className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+                <select
+                  value={form.serviceType}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      serviceType: event.target.value as ServiceType,
+                    }))
+                  }
+                  className="rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3"
                 >
-                  {submitLoading ? "Создаём..." : "Создать бронирование"}
-                </button>
+                  {serviceOptions.map((service) => (
+                    <option key={service} value={service}>
+                      {service}
+                    </option>
+                  ))}
+                </select>
               </div>
+
+              <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+                <p className="text-sm text-neutral-300">
+                  Выбранная дата:{" "}
+                  <span className="font-medium text-white">{form.date}</span>
+                </p>
+
+                <p className="mt-2 text-sm text-neutral-300">
+                  Начало:{" "}
+                  <span className="font-medium text-white">
+                    {form.startTime || "не выбрано"}
+                  </span>
+                </p>
+
+                <p className="mt-1 text-sm text-neutral-300">
+                  Конец:{" "}
+                  <span className="font-medium text-white">
+                    {form.endTime || "не выбрано"}
+                  </span>
+                </p>
+
+                <p className="mt-3 text-xs text-neutral-500">
+                  Выбери время прямо в блоке доступности выше: первый клик —
+                  начало, второй — конец.
+                </p>
+              </div>
+
+              {submitError ? (
+                <p className="text-sm text-red-400">{submitError}</p>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={submitLoading}
+                className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90 disabled:opacity-50"
+              >
+                {submitLoading ? "Создаём..." : "Создать бронирование"}
+              </button>
             </form>
           </div>
         ) : null}
@@ -306,13 +461,15 @@ export default function BookingsPage() {
           <div className="rounded-2xl border border-red-900 bg-red-950/30 p-4 text-red-300">
             {error}
           </div>
-        ) : bookings.length === 0 ? (
+        ) : filteredBookings.length === 0 ? (
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 text-neutral-400">
-            Бронирований пока нет.
+            {hasActiveFilters
+              ? "Ничего не найдено по выбранным фильтрам."
+              : "Бронирований пока нет."}
           </div>
         ) : (
           <div className="grid gap-4">
-            {bookings.map((booking) => (
+            {filteredBookings.map((booking) => (
               <div
                 key={booking.id}
                 className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5"
@@ -328,9 +485,9 @@ export default function BookingsPage() {
                     <p className="text-sm text-neutral-400">
                       Service: {booking.serviceType}
                     </p>
-                    <p className="text-sm text-neutral-400">
-                      Status: {booking.status}
-                    </p>
+                    <div className="pt-1">
+                      <StatusBadge status={booking.status} />
+                    </div>
 
                     {booking.user ? (
                       <p className="text-sm text-neutral-400">
