@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getToken } from "@/lib/auth";
 import { getAllBookings } from "@/lib/bookings";
@@ -8,6 +8,7 @@ import { getAllProjects } from "@/lib/projects";
 import { apiRequest } from "@/lib/api";
 import type { Booking, Project, UserRole } from "@/lib/types";
 import StatusBadge from "@/components/ui/StatusBadge";
+import { getPublicAvailableSlots } from "@/lib/bookings";
 
 type MeResponse = {
   message: string;
@@ -22,6 +23,32 @@ type StudioMetricCardProps = {
   value: string;
   description: string;
 };
+
+function getTodayDate() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function formatDate(date: Date) {
+  return date.toISOString().split("T")[0];
+}
+
+function addDays(base: Date, days: number) {
+  const next = new Date(base);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function getUpcomingDates(daysCount: number) {
+  const today = new Date();
+
+  return Array.from({ length: daysCount }, (_, index) =>
+    formatDate(addDays(today, index)),
+  );
+}
+
+const allDaySlots = Array.from({ length: 24 }, (_, index) =>
+  `${String(index).padStart(2, "0")}:00`,
+);
 
 function StudioMetricCard({
   title,
@@ -59,7 +86,13 @@ export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [publicSelectedDate, setPublicSelectedDate] = useState(getTodayDate());
+  const [publicSlots, setPublicSlots] = useState<string[]>([]);
+  const [publicSlotsLoading, setPublicSlotsLoading] = useState(false);
+  const [publicSlotsError, setPublicSlotsError] = useState("");
+  const publicDates = useMemo(() => getUpcomingDates(7), []);
+  
+  
   useEffect(() => {
     async function loadStudioData() {
       const token = getToken();
@@ -136,6 +169,27 @@ export default function HomePage() {
       confirmedHours,
     };
   }, [projects, bookings]);
+
+  const loadPublicSlots = useCallback(async (date: string) => {
+    try {
+      setPublicSlotsLoading(true);
+      setPublicSlotsError("");
+
+      const availableSlots = await getPublicAvailableSlots(date);
+        setPublicSlots(availableSlots);
+      } catch {
+        setPublicSlots([]);
+        setPublicSlotsError(
+        "Публичный просмотр слотов появится после включения открытого endpoint на backend.",
+      );
+    } finally {
+      setPublicSlotsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadPublicSlots(publicSelectedDate);
+  }, [publicSelectedDate, loadPublicSlots]);
 
   const publicCards =
     role === "OWNER"
@@ -363,6 +417,110 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      <div className="space-y-4">
+  <div>
+    <h2 className="text-2xl font-semibold">Свободные слоты студии</h2>
+    <p className="mt-1 text-sm text-neutral-500">
+      Посмотри доступные часы заранее. Для бронирования понадобится вход в
+      систему.
+    </p>
+  </div>
+
+  <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
+    <div className="flex gap-2 overflow-x-auto pb-1">
+      {publicDates.map((date) => {
+        const isSelected = publicSelectedDate === date;
+
+        return (
+          <button
+            key={date}
+            type="button"
+            onClick={() => setPublicSelectedDate(date)}
+            className={`min-w-[90px] shrink-0 rounded-xl border px-3 py-2 text-left transition ${
+              isSelected
+                ? "border-green-400 bg-green-500/15"
+                : "border-neutral-800 bg-neutral-950 hover:bg-neutral-900"
+            }`}
+          >
+            <p className="text-[10px] uppercase text-neutral-500">
+              {new Date(date).toLocaleDateString("ru-RU", {
+                weekday: "short",
+              })}
+            </p>
+
+            <p className="text-sm font-medium">
+              {new Date(date).toLocaleDateString("ru-RU", {
+                day: "2-digit",
+                month: "2-digit",
+              })}
+            </p>
+          </button>
+        );
+      })}
+    </div>
+
+    <div className="mt-4">
+      {publicSlotsLoading ? (
+        <p className="text-sm text-neutral-400">Загрузка доступности...</p>
+      ) : publicSlotsError ? (
+        <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-950 p-4 text-sm text-neutral-500">
+          {publicSlotsError}
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
+            {allDaySlots.map((slot) => {
+              const isAvailable = publicSlots.includes(slot);
+
+              return (
+                <div
+                  key={slot}
+                  className={`rounded-lg border px-2 py-1.5 text-center text-xs ${
+                    isAvailable
+                      ? "border-green-500/30 bg-green-500/10 text-green-300"
+                      : "border-neutral-700 bg-neutral-800/60 text-neutral-400"
+                  }`}
+                >
+                  {slot}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-neutral-500">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-green-500/20 ring-1 ring-green-500/30" />
+              <span>Свободно</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-neutral-700" />
+              <span>Недоступно</span>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+
+    <div className="mt-5 flex flex-wrap gap-3">
+      <Link
+        href="/login"
+        className="rounded-xl bg-white px-5 py-3 font-medium !text-black transition hover:opacity-90"
+      >
+        Login to book
+      </Link>
+
+      <Link
+        href="/register"
+        className="rounded-xl border border-neutral-700 px-5 py-3 text-sm text-neutral-200 transition hover:bg-neutral-800"
+      >
+        Create account
+      </Link>
+    </div>
+  </div>
+</div>
+
 
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
         <div className="max-w-2xl space-y-3">

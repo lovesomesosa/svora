@@ -64,6 +64,17 @@ export async function getAvailableSlots(token: string, date: string) {
   return response.data.availableSlots;
 }
 
+export async function getPublicAvailableSlots(date: string) {
+  const response = await apiRequest<AvailableSlotsResponse>(
+    `/api/bookings/available?date=${date}`,
+    {
+      method: "GET"
+    }
+  );
+
+  return response.data.availableSlots;
+}
+
 export async function updateBookingStatus(
   token: string,
   bookingId: string,
@@ -75,3 +86,4 @@ export async function updateBookingStatus(
     body: { status },
   });
 }
+
