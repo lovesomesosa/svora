@@ -15,7 +15,7 @@ export default function CommentList({ comments }: CommentListProps) {
   return (
     <div className="mt-5 space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-neutral-300">Comments</p>
+        <p className="text-sm font-medium text-neutral-300">Комментарии</p>
 
         <button
           onClick={() => setIsOpen((prev) => !prev)}
@@ -50,7 +50,7 @@ export default function CommentList({ comments }: CommentListProps) {
                       <span>{comment.user.role}</span>
                     </>
                   ) : (
-                    <span>Unknown author</span>
+                    <span>Неизвестный автор</span>
                   )}
 
                   <span>•</span>
