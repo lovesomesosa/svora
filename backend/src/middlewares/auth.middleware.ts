@@ -40,3 +40,11 @@ export const authMiddleware = (
     });
   }
 };
+
+export interface AuthRequest<P = Record<string, string>> extends Request<P> {
+  user?: {
+    userId: string;
+    role: string;
+  };
+  file?: Express.Multer.File;
+}

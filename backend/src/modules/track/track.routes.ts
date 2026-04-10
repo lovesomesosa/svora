@@ -7,6 +7,8 @@ import {
   createTrackVersion,
   getTrackVersions,
 } from "../version/version.controller.js";
+import { uploadTrackVersionFile } from "../../middlewares/upload.middleware.js";
+import { uploadTrackVersion } from "../version/version.controller.js";
 
 const router = Router();
 
@@ -20,5 +22,12 @@ router.get("/:id/comments", authMiddleware, getComments);
 
 router.post("/:id/versions", authMiddleware, createTrackVersion);
 router.get("/:id/versions", authMiddleware, getTrackVersions);
+
+router.post(
+  "/:id/versions/upload",
+  authMiddleware,
+  uploadTrackVersionFile.single("file"),
+  uploadTrackVersion,
+);
 
 export default router;

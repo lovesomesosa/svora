@@ -19,6 +19,7 @@ const serializeVersion = (version: SerializableVersion) => ({
   createdAt: version.createdAt,
 });
 
+// Функция для создания новой версии трека с проверкой прав доступа и уникальности имени версии
 export const createTrackVersion = async (
   trackId: string,
   userId: string,
@@ -68,6 +69,7 @@ export const createTrackVersion = async (
   return serializeVersion(version);
 };
 
+// Функция для получения всех версий трека с пагинацией (для админов) - может быть полезна для общего списка версий в админке, если будет такая
 export const getAllVersions = async (page?: string, limit?: string) => {
   const { skip, limit: take, page: currentPage } = getPagination(page, limit);
 
@@ -111,6 +113,7 @@ export const getAllVersions = async (page?: string, limit?: string) => {
   };
 };
 
+// Функция для получения всех версий трека с проверкой прав доступа
 export const getTrackVersions = async (
   trackId: string,
   userId: string,
@@ -139,4 +142,55 @@ export const getTrackVersions = async (
   }
 
   return track.versions.map(serializeVersion);
+};
+
+// Функция для загрузки новой версии трека с проверкой прав доступа и уникальности имени версии
+export const uploadTrackVersion = async (
+  trackId: string,
+  userId: string,
+  role: string,
+  versionName: string,
+  fileUrl: string,
+) => {
+  const track = await prisma.track.findFirst({
+    where: {
+      id: trackId,
+      ...(role === "OWNER"
+        ? {}
+        : {
+            project: {
+              userId,
+            },
+          }),
+    },
+    include: {
+      versions: true,
+    },
+  });
+
+  if (!track) {
+    throw new AppError("Track not found", 404);
+  }
+
+  const duplicateVersionName = track.versions.some(
+    (version) =>
+      version.versionName.toLowerCase() === versionName.toLowerCase(),
+  );
+
+  if (duplicateVersionName) {
+    throw new AppError(
+      "Version with this name already exists for this track",
+      409,
+    );
+  }
+
+  const version = await prisma.trackVersion.create({
+    data: {
+      trackId,
+      versionName,
+      fileUrl,
+    },
+  });
+
+  return serializeVersion(version);
 };

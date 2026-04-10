@@ -53,3 +53,31 @@ export const getTrackVersions = asyncHandler(
     return success(res, versions, "Track versions fetched");
   },
 );
+
+// контроллер для загрузки новой версии трека с проверкой прав доступа и уникальности имени версии, а также сохранением файла и генерацией URL для доступа к нему
+export const uploadTrackVersion = asyncHandler(
+  async (req: AuthRequest<TrackIdParams>, res: Response) => {
+    const versionName = req.body.versionName;
+    const file = req.file;
+
+    if (!versionName || typeof versionName !== "string") {
+      return failure(res, "versionName is required", 400);
+    }
+
+    if (!file) {
+      return failure(res, "Audio file is required", 400);
+    }
+
+    const fileUrl = `/uploads/track-versions/${file.filename}`;
+
+    const version = await versionService.uploadTrackVersion(
+      req.params.id,
+      req.user!.userId,
+      req.user!.role,
+      versionName,
+      fileUrl,
+    );
+
+    return success(res, version, "Track version uploaded", 201);
+  },
+);
